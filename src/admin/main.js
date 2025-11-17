@@ -1,5 +1,3 @@
-import QRCode from 'qrcode'
-
 const DEFAULT_LABELS = {
   beginner: '初級',
   intermediate: '中級',
@@ -81,24 +79,6 @@ const DEFAULT_USER_DATA_SETTINGS = {
   spreadsheetUrl: '',
   submitGasUrl: '',
   readGasUrl: '',
-}
-
-const QR_PAGE_TARGETS = [
-  { key: 'top', label: 'トップページ', path: '/' },
-  { key: 'form1', label: 'アンケート1', path: '/form1/' },
-  { key: 'form2', label: 'アンケート2', path: '/form2/' },
-  { key: 'form3', label: 'アンケート3', path: '/form3/' },
-]
-
-const QR_SIZE_MAP = {
-  s: { label: 'S', px: 96 },
-  m: { label: 'M', px: 144 },
-  l: { label: 'L', px: 192 },
-}
-
-const QR_FORMATS = {
-  png: { label: 'PNG', mime: 'image/png', extension: 'png' },
-  jpg: { label: 'JPG', mime: 'image/jpeg', extension: 'jpg', quality: 0.92 },
 }
 
 const DEFAULT_FORM1 = {
@@ -273,15 +253,6 @@ const routerDescriptionFields = TIERS.reduce((acc, { key }) => {
   }
   return acc
 }, {})
-
-const qrControls = {
-  page: form.elements.qrPage,
-  size: form.elements.qrSize,
-  format: form.elements.qrFormat,
-  preview: app.querySelector('[data-role="qr-preview"]'),
-  refreshButton: app.querySelector('[data-role="qr-refresh"]'),
-  downloadButton: app.querySelector('[data-role="qr-download"]'),
-}
 
 const surveyResultsFields = {
   spreadsheetUrl: form.elements.surveySpreadsheetUrl,
@@ -554,104 +525,6 @@ const getUserProfilePayload = () => {
       email: getValue(userProfileFields.admin?.email, baseProfile.admin?.email || ''),
       password: getValue(userProfileFields.admin?.password, baseProfile.admin?.password || ''),
     },
-  }
-}
-
-const getQrPageConfig = (key) =>
-  QR_PAGE_TARGETS.find((page) => page.key === key) || QR_PAGE_TARGETS[0]
-
-const getQrSizeValue = (key) => {
-  const size = QR_SIZE_MAP[key]
-  return size ? size.px : QR_SIZE_MAP.m.px
-}
-
-const getQrFormatConfig = (key) => QR_FORMATS[key] || QR_FORMATS.png
-
-const buildQrTargetUrl = (key) => {
-  const page = getQrPageConfig(key)
-  try {
-    return new URL(page.path, window.location.origin).href
-  } catch {
-    return window.location.origin
-  }
-}
-
-const qrPreviewState = {
-  canvas: null,
-}
-
-const setQrPreviewMessage = (message) => {
-  if (!qrControls.preview) return
-  const text = document.createElement('p')
-  text.textContent = message
-  qrControls.preview.innerHTML = ''
-  qrControls.preview.appendChild(text)
-}
-
-const renderQrPreview = async () => {
-  if (!qrControls.preview) return null
-  const pageKey = qrControls.page?.value || QR_PAGE_TARGETS[0].key
-  const sizeKey = qrControls.size?.value || 'm'
-  const targetUrl = buildQrTargetUrl(pageKey)
-  const sizePx = getQrSizeValue(sizeKey)
-
-  if (!qrPreviewState.canvas) {
-    qrPreviewState.canvas = document.createElement('canvas')
-    qrPreviewState.canvas.setAttribute('aria-label', 'QRコードプレビュー')
-  }
-
-  setQrPreviewMessage('QRコードを生成中です…')
-
-  try {
-    await QRCode.toCanvas(qrPreviewState.canvas, targetUrl, {
-      width: sizePx,
-      margin: 1,
-      color: {
-        dark: '#1f2a16',
-        light: '#ffffff',
-      },
-    })
-    qrControls.preview.innerHTML = ''
-    qrControls.preview.appendChild(qrPreviewState.canvas)
-    return { pageKey, sizeKey, sizePx, targetUrl }
-  } catch (error) {
-    console.error('Failed to render QR preview', error)
-    setQrPreviewMessage('QRコードの生成に失敗しました。時間をおいてお試しください。')
-    throw error
-  }
-}
-
-const downloadQrCode = async () => {
-  const pageKey = qrControls.page?.value || QR_PAGE_TARGETS[0].key
-  const formatKey = qrControls.format?.value || 'png'
-  const sizeKey = qrControls.size?.value || 'm'
-  const targetUrl = buildQrTargetUrl(pageKey)
-  const sizePx = getQrSizeValue(sizeKey)
-  const format = getQrFormatConfig(formatKey)
-
-  try {
-    const dataUrl = await QRCode.toDataURL(targetUrl, {
-      width: sizePx,
-      margin: 1,
-      type: format.mime,
-      quality: format.quality,
-      color: {
-        dark: '#1f2a16',
-        light: '#ffffff',
-      },
-    })
-
-    const link = document.createElement('a')
-    link.href = dataUrl
-    link.download = `qr-${pageKey}-${sizePx}.${format.extension}`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-
-    setStatus('QRコードをダウンロードしました。', 'success')
-  } catch (error) {
-    console.error('Failed to download QR code', error)
-    setStatus('QRコードのダウンロードに失敗しました。時間をおいてお試しください。', 'error')
   }
 }
 
@@ -1381,33 +1254,6 @@ const waitForStatusPaint = () =>
     }
   })
 
-const initializeQrControls = () => {
-  if (!qrControls.preview) return
-
-  const refresh = () => {
-    renderQrPreview().catch(() => {
-      // 表示領域にエラーメッセージを出すので追加処理は不要
-    })
-  }
-
-  ;['page', 'size', 'format'].forEach((key) => {
-    const control = qrControls[key]
-    control?.addEventListener('change', refresh)
-  })
-
-  if (qrControls.refreshButton) {
-    qrControls.refreshButton.addEventListener('click', refresh)
-  }
-
-  if (qrControls.downloadButton) {
-    qrControls.downloadButton.addEventListener('click', () => {
-      downloadQrCode()
-    })
-  }
-
-  refresh()
-}
-
 const activateTab = (target) => {
   tabButtons.forEach((button) => {
     const isActive = button.dataset.tabTarget === target
@@ -1449,8 +1295,6 @@ if (tabMenu && tabMenuTrigger && tabMenuContainer) {
     }
   })
 }
-
-initializeQrControls()
 
 if (brandingFields.fileInput) {
   brandingFields.fileInput.addEventListener('change', handleBrandingFileChange)

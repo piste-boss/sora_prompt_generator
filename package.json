@@ -15,7 +15,6 @@
   "dependencies": {
     "@netlify/blobs": "^10.3.0",
     "@netlify/functions": "^5.0.1",
-    "jsdom": "^27.1.0",
-    "qrcode": "^1.5.4"
+    "jsdom": "^27.1.0"
   }
 }

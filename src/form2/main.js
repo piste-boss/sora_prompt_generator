@@ -706,10 +706,8 @@ const sendSurveyResults = async (answers, answersOrdered, submittedAt, responseI
 const redirectToGenerator = (submittedAt, responseId) => {
   const redirectMap = {
     form1: '/generator/index.html',
-    form2: '/generator/page2/index.html',
-    form3: '/generator/page3/index.html',
   }
-  const basePath = redirectMap[FORM_KEY] || '/generator/page2/index.html'
+  const basePath = redirectMap[FORM_KEY] || '/generator/index.html'
   if (!submittedAt) {
     window.location.href = basePath
     return

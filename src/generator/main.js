@@ -3,8 +3,6 @@ const DEFAULT_FAVICON_PATH = '/vite.svg'
 const LAST_SUBMISSION_STORAGE_KEY = 'oisoya_review_last_submission'
 const FORM_KEY_BY_PROMPT = {
   page1: 'form1',
-  page2: 'form2',
-  page3: 'form3',
 }
 
 const readCachedConfig = () => {
