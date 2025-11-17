@@ -4,57 +4,38 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./src/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <title>サクラト。カフェ 口コミルータ</title>
+    <link rel="stylesheet" href="./src/form2/style.css" />
+    <title>アンケートフォーム1 - サクラト。カフェ</title>
   </head>
   <body>
-    <div id="app">
+    <div id="form2-app" data-form-key="form1">
       <noscript>
         <p style="padding:1rem; text-align:center;">JavaScriptを有効にしてご利用ください。</p>
       </noscript>
-      <main class="router">
-        <header class="router__header">
-          <p class="router__brand" data-role="brand">
-            <img class="router__brand-logo" data-role="brand-logo" alt="サクラト。カフェ ロゴ" hidden />
+      <main class="form2">
+        <header class="form2__header">
+          <p class="form2__brand" data-role="brand">
+            <img class="form2__brand-logo" data-role="brand-logo" alt="サクラト。カフェ ロゴ" hidden />
             <span data-role="brand-text">サクラト。カフェ</span>
           </p>
-          <h1 class="router__heading">口コミ投稿にご協力お願いします</h1>
-          <p class="router__lead">
-            サクラト。カフェをご利用いただきありがとうございます。アンケートにご協力いただいたお客様に、お得な特典をプレゼントさせていただきます。
-            <span class="router__note">アンケートに回答するだけでAIがクチコミを生成します。</span>
+          <h1 class="form2__title" data-role="title">体験の満足度を教えてください</h1>
+          <p class="form2__lead" data-role="lead">
+            星評価と設問にご協力ください。回答内容は生成されるクチコミのトーンに反映されます。
           </p>
         </header>
-        <section class="router__buttons">
-          <button class="router__button" data-tier="beginner">
-            <span class="router__button-label">ライトカップ</span>
-            <span class="router__button-meta">
-              <small class="router__button-meta-highlight" data-role="button-meta-highlight">所要時間 30秒</small>
-              <span class="router__button-meta-description" data-role="button-meta-description">5段階評価のみでひとこと生成</span>
-            </span>
-          </button>
-          <button class="router__button" data-tier="intermediate">
-            <span class="router__button-label">ミディアムカップ</span>
-            <span class="router__button-meta">
-              <small class="router__button-meta-highlight" data-role="button-meta-highlight">所要時間 60秒</small>
-              <span class="router__button-meta-description" data-role="button-meta-description">選択式のアンケートに答えて100文字程度の文章生成</span>
-            </span>
-          </button>
-          <button class="router__button" data-tier="advanced">
-            <span class="router__button-label">フルシティカップ</span>
-            <span class="router__button-meta">
-              <small class="router__button-meta-highlight" data-role="button-meta-highlight">所要時間 90秒</small>
-              <span class="router__button-meta-description" data-role="button-meta-description">アンケートに文章回答して200文字程度の文章生成</span>
-            </span>
-          </button>
+        <section class="form2__questions" data-role="question-list"></section>
+        <section class="form2__actions">
+          <button type="button" class="form2__button" data-role="submit">クチコミ生成ページへ進む</button>
         </section>
+        <p class="form2__status" data-role="status" hidden></p>
       </main>
     </div>
-    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/form2/main.js"></script>
   </body>
 </html>
