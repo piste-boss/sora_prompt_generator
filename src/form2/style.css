@@ -58,6 +58,53 @@ body {
   z-index: 1;
 }
 
+.app-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, rgba(4, 8, 24, 0.95), rgba(2, 5, 19, 0.98));
+  z-index: 2000;
+  color: #f5f7ff;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.app-loader__inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.app-loader__spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--accent-strong);
+  animation: app-loader-spin 0.85s linear infinite;
+}
+
+.app-loader__text {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
+.app-ready .app-loader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@keyframes app-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .form2 {
   width: 100%;
   background: linear-gradient(135deg, rgba(9, 16, 38, 0.92), rgba(12, 25, 60, 0.9));

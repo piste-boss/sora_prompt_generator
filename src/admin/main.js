@@ -812,7 +812,7 @@ function createSurveyFormManager({ key, fields, questionListEl, addButton, defau
     reviewToggle.className = 'admin__toggle admin__toggle--compact'
     const reviewLabel = document.createElement('span')
     reviewLabel.className = 'admin__toggle-label'
-    reviewLabel.textContent = '口コミに反映'
+    reviewLabel.textContent = 'プロンプトに反映'
     reviewToggle.appendChild(reviewLabel)
     const reviewControl = document.createElement('span')
     reviewControl.className = 'admin__toggle-control'
@@ -1061,6 +1061,17 @@ const getFaviconLinks = () => {
   return [newLink]
 }
 
+const getAppleTouchLinks = () => {
+  const links = document.querySelectorAll('link[rel="apple-touch-icon"]')
+  if (links.length > 0) {
+    return Array.from(links)
+  }
+  const newLink = document.createElement('link')
+  newLink.setAttribute('rel', 'apple-touch-icon')
+  document.head.appendChild(newLink)
+  return [newLink]
+}
+
 const setDocumentFavicon = (dataUrl) => {
   const href = dataUrl || DEFAULT_FAVICON_PATH
   const type = inferFaviconType(href)
@@ -1070,6 +1081,10 @@ const setDocumentFavicon = (dataUrl) => {
     if (type) {
       link.setAttribute('type', type)
     }
+  })
+  const appleLinks = getAppleTouchLinks()
+  appleLinks.forEach((link) => {
+    link.setAttribute('href', href)
   })
 }
 
@@ -1258,6 +1273,9 @@ const waitForStatusPaint = () =>
       setTimeout(resolve, 16)
     }
   })
+
+// 以前のUIの名残で参照されており、存在しないためにReferenceErrorを出していた
+const hidePromptPopover = () => {}
 
 const activateTab = (target) => {
   tabButtons.forEach((button) => {

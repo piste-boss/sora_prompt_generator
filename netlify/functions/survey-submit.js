@@ -7,6 +7,10 @@ const DEFAULT_SURVEY_RESULTS = {
   apiKey: '',
 }
 
+export const config = {
+  blobs: true,
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST,OPTIONS',

@@ -45,6 +45,15 @@ const getFaviconLinks = () => {
   return [newLink]
 }
 
+const getAppleTouchLinks = () => {
+  const links = document.querySelectorAll('link[rel="apple-touch-icon"]')
+  if (links.length > 0) return Array.from(links)
+  const newLink = document.createElement('link')
+  newLink.setAttribute('rel', 'apple-touch-icon')
+  document.head.appendChild(newLink)
+  return [newLink]
+}
+
 const setDocumentFavicon = (dataUrl) => {
   const href = dataUrl || DEFAULT_FAVICON_PATH
   const type = inferFaviconType(href)
@@ -55,12 +64,26 @@ const setDocumentFavicon = (dataUrl) => {
       link.setAttribute('type', type)
     }
   })
+  const appleLinks = getAppleTouchLinks()
+  appleLinks.forEach((link) => {
+    link.setAttribute('href', href)
+  })
 }
 
 const app = document.querySelector('#generator-app')
 if (!app) {
   throw new Error('#generator-app が見つかりません。')
 }
+
+const htmlElement = document.documentElement
+const markAppReady = (() => {
+  let ready = false
+  return () => {
+    if (ready) return
+    ready = true
+    htmlElement.classList.add('app-ready')
+  }
+})()
 
 const generateButton = app.querySelector('[data-role="generate"]')
 const copyButton = app.querySelector('[data-role="copy"]')
@@ -168,12 +191,12 @@ const toggleLoading = (isLoading) => {
     generateButton.textContent = '生成中…'
   } else {
     generateButton.removeAttribute('disabled')
-    generateButton.textContent = '口コミ生成'
+    generateButton.textContent = 'プロンプト生成'
   }
 }
 
 const handleGenerate = async () => {
-  setStatus('口コミを生成しています…')
+  setStatus('プロンプトを生成しています…')
   toggleLoading(true)
 
   try {
@@ -228,7 +251,7 @@ const handleGenerate = async () => {
 
     writeCachedConfig(currentConfig)
 
-    setStatus('口コミを生成しました。', 'success')
+    setStatus('プロンプトを生成しました。', 'success')
   } catch (error) {
     console.error(error)
     setStatus(error.message, 'error')
@@ -244,7 +267,7 @@ generateButton.addEventListener('click', () => {
 copyButton.addEventListener('click', async () => {
   const text = textarea.value.trim()
   if (!text) {
-    setStatus('コピーする文章がありません。先に口コミを生成してください。', 'warn')
+    setStatus('コピーする文章がありません。先にプロンプトを生成してください。', 'warn')
     return
   }
 
@@ -256,6 +279,8 @@ copyButton.addEventListener('click', async () => {
     setStatus('コピーに失敗しました。手動で選択してコピーしてください。', 'error')
   }
 })
+
+markAppReady()
 
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {

@@ -107,6 +107,16 @@ if (!app) {
   throw new Error('#form2-app が見つかりません。')
 }
 
+const htmlElement = document.documentElement
+const markAppReady = (() => {
+  let ready = false
+  return () => {
+    if (ready) return
+    ready = true
+    htmlElement.classList.add('app-ready')
+  }
+})()
+
 const FORM_KEY = app.dataset.formKey || 'form2'
 const DEFAULT_FORM = DEFAULT_FORMS[FORM_KEY] || DEFAULT_FORMS.form2
 
@@ -566,6 +576,8 @@ const loadConfig = async () => {
     }
   } catch (error) {
     console.warn(error)
+  } finally {
+    markAppReady()
   }
 }
 
@@ -746,7 +758,7 @@ submitButton?.addEventListener('click', async () => {
 
   try {
     if (hasEndpoint) {
-      setStatus('アンケート結果を送信しています…')
+      setStatus('回答結果を送信しています…')
       await sendSurveyResults(answers, answersOrdered, submissionTimestamp, responseId)
     }
     setStatus('')

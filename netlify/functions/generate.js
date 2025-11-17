@@ -56,7 +56,7 @@ const jsonResponse = (statusCode, payload = {}) => ({
 
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '')
 
-const buildPrompt = (prompt, dataSamples) => {
+const buildPrompt = (prompt, dataSamples, referencePrompt = '') => {
   const basePrompt = prompt ||
     '次のアンケート回答を参考に、100〜200文字程度の口コミを丁寧な日本語で作成してください。語尾や表現は自然で温かみのあるものにしてください。'
 
@@ -75,7 +75,9 @@ const buildPrompt = (prompt, dataSamples) => {
         .join('\n')
     : ''
 
-  return `${basePrompt}\n\n参考データ:\n${formattedSamples}`
+  const referenceSection = referencePrompt ? `\n\n参考プロンプト:\n${referencePrompt}` : ''
+
+  return `${basePrompt}\n\n参考データ:\n${formattedSamples}${referenceSection}`
 }
 
 const extractTextFromGemini = (payload) => {
@@ -212,6 +214,7 @@ export const handler = async (event, context) => {
   const config = (await store.get(CONFIG_KEY, { type: 'json' }).catch(() => null)) || {}
   const aiSettings = config.aiSettings || {}
   const surveyResultsConfig = config.surveyResults || {}
+  const userProfile = config.userProfile || {}
 
   const geminiApiKey = sanitizeString(aiSettings.geminiApiKey)
   const mapsLink = sanitizeString(aiSettings.mapsLink)
@@ -273,7 +276,12 @@ export const handler = async (event, context) => {
   const model = requestModel || DEFAULT_MODEL
   const geminiEndpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(geminiApiKey)}`
 
-  const completePrompt = buildPrompt(promptForModel, Array.isArray(dataSamples) ? dataSamples.slice(0, 5) : [])
+  const referencePrompt = sanitizeString(userProfile.referencePrompt)
+  const completePrompt = buildPrompt(
+    promptForModel,
+    Array.isArray(dataSamples) ? dataSamples.slice(0, 5) : [],
+    referencePrompt,
+  )
 
   try {
     const geminiResponse = await fetch(geminiEndpoint, {

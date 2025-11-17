@@ -11,6 +11,37 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../src/admin/style.css" />
+    <script>
+      ;(() => {
+        const CACHE_KEY = 'oisoya_review_config_cache'
+        const ensureLink = (rel) => {
+          const existing = document.querySelector(`link[rel="${rel}"]`)
+          if (existing) return existing
+          const link = document.createElement('link')
+          link.setAttribute('rel', rel)
+          document.head.appendChild(link)
+          return link
+        }
+        const applyIcon = (href) => {
+          if (!href) return
+          ensureLink('icon').setAttribute('href', href)
+          ensureLink('shortcut icon').setAttribute('href', href)
+          ensureLink('apple-touch-icon').setAttribute('href', href)
+        }
+        try {
+          const raw = window.localStorage.getItem(CACHE_KEY)
+          if (!raw) return
+          const cached = JSON.parse(raw)
+          const branding = cached?.branding || {}
+          const icon = branding.logoDataUrl || branding.faviconDataUrl || ''
+          if (icon) {
+            applyIcon(icon)
+          }
+        } catch {
+          // noop
+        }
+      })()
+    </script>
     <title>adminページ</title>
   </head>
   <body>
@@ -123,7 +154,7 @@
           </section>
           <section class="admin__panel" data-tab-panel="ai-settings">
             <section class="admin__card">
-              <h2>プロンプトgenerator</h2>
+              <h2>LMM設定</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">モデル名</span>

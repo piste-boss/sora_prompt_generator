@@ -65,6 +65,17 @@ const getFaviconLinks = () => {
   return [newLink]
 }
 
+const getAppleTouchLinks = () => {
+  const links = document.querySelectorAll('link[rel="apple-touch-icon"]')
+  if (links.length > 0) {
+    return Array.from(links)
+  }
+  const newLink = document.createElement('link')
+  newLink.setAttribute('rel', 'apple-touch-icon')
+  document.head.appendChild(newLink)
+  return [newLink]
+}
+
 const setDocumentFavicon = (dataUrl) => {
   const href = dataUrl || DEFAULT_FAVICON_PATH
   const type = inferFaviconType(href)
@@ -74,6 +85,10 @@ const setDocumentFavicon = (dataUrl) => {
     if (type) {
       link.setAttribute('type', type)
     }
+  })
+  const appleLinks = getAppleTouchLinks()
+  appleLinks.forEach((link) => {
+    link.setAttribute('href', href)
   })
 }
 
