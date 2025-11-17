@@ -22,6 +22,15 @@ const jsonResponse = (statusCode, payload = {}) => ({
 })
 
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '')
+const toBooleanFlag = (value) => {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return !Number.isNaN(value) && value !== 0
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+    return ['1', 'true', 'on', 'yes'].includes(normalized)
+  }
+  return false
+}
 
 const extractSpreadsheetId = (url) => {
   if (typeof url !== 'string' || !url) return ''
@@ -107,6 +116,12 @@ export const handler = async (event, context) => {
     return jsonResponse(400, { message: '店舗情報のスプレッドシートIDが取得できませんでした。' })
   }
 
+  const requestedUserId = sanitizeString(
+    overrideMetadata.userId ?? payload.profile?.userId ?? config.userProfile?.userId ?? '',
+  )
+  const shouldCreateUserSheet = Boolean(toBooleanFlag(overrideMetadata.createUserSheet) && requestedUserId)
+  const profileAdminEmail = sanitizeString(payload.profile?.admin?.email)
+
   const metadata = {
     spreadsheetId, // 互換
     spreadsheetUrl: storedSpreadsheetUrl,
@@ -117,6 +132,10 @@ export const handler = async (event, context) => {
     origin: sanitizeString(payload.origin),
     source: sanitizeString(payload.source) || 'user-app',
     submittedAt: sanitizeString(payload.submittedAt) || new Date().toISOString(),
+    userId: requestedUserId,
+    userSheetName: requestedUserId,
+    userEmail: profileAdminEmail,
+    createUserSheet: shouldCreateUserSheet,
   }
 
   const requestBody = JSON.stringify({ profile: payload.profile, metadata })

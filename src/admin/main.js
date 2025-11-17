@@ -69,6 +69,7 @@ const DEFAULT_USER_PROFILE = {
   excludeWords: [],
   nearStation: false,
   referencePrompt: '',
+  userId: '',
   admin: {
     name: '',
     email: '',
@@ -374,10 +375,15 @@ const hasUserDataSyncConfig = () => {
   return Boolean(settings.submitGasUrl && settings.spreadsheetUrl)
 }
 
-const syncUserProfileExternally = async (profile) => {
+const syncUserProfileExternally = async (profile, options = {}) => {
   const settings = getCurrentUserDataSettings()
   if (!settings.submitGasUrl || !settings.spreadsheetUrl) {
     return { status: 'skipped' }
+  }
+
+  const metadata = {
+    userId: typeof profile?.userId === 'string' ? profile.userId : '',
+    createUserSheet: Boolean(options?.shouldCreateUserSheet && profile?.userId),
   }
 
   try {
@@ -386,6 +392,7 @@ const syncUserProfileExternally = async (profile) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         profile,
+        metadata,
         origin: window.location.href,
         source: isUserApp ? 'user-app' : 'admin-app',
         submittedAt: new Date().toISOString(),
@@ -525,6 +532,7 @@ const getUserProfilePayload = () => {
         ? Boolean(userProfileFields.nearStation.checked)
         : Boolean(baseProfile.nearStation),
     referencePrompt: getValue(userProfileFields.referencePrompt, baseProfile.referencePrompt || ''),
+    userId: typeof baseProfile.userId === 'string' ? baseProfile.userId : '',
     admin: {
       name: getValue(userProfileFields.admin?.name, baseProfile.admin?.name || ''),
       email: getValue(userProfileFields.admin?.email, baseProfile.admin?.email || ''),
@@ -1723,11 +1731,18 @@ form.addEventListener('submit', async (event) => {
       populateForm(fallbackConfig)
     }
 
+    const latestUserProfile = loadedConfig?.userProfile || payload.userProfile || {}
+    const previousUserId = typeof payload.userProfile?.userId === 'string' ? payload.userProfile.userId : ''
+    const currentUserId = typeof latestUserProfile?.userId === 'string' ? latestUserProfile.userId : ''
+    const shouldProvisionUserSheet = Boolean(currentUserId && currentUserId !== previousUserId)
+
     let userProfileSyncResult = { status: 'skipped' }
     if (isUserApp && hasUserDataSyncConfig()) {
       setStatus('店舗情報を保存しています…', 'info', { autoHide: false })
       await waitForStatusPaint()
-      userProfileSyncResult = await syncUserProfileExternally(payload.userProfile)
+      userProfileSyncResult = await syncUserProfileExternally(latestUserProfile, {
+        shouldCreateUserSheet: shouldProvisionUserSheet,
+      })
       if (userProfileSyncResult.status === 'error') {
         setStatus(userProfileSyncResult.message, 'error')
         return

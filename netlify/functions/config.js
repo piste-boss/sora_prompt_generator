@@ -142,6 +142,7 @@ const DEFAULT_USER_PROFILE = {
   excludeWords: [],
   nearStation: false,
   referencePrompt: '',
+  userId: '',
   admin: {
     name: '',
     email: '',
@@ -188,6 +189,9 @@ const sanitizeStringArray = (value) => {
   return value.map((entry) => sanitizeString(entry)).filter((entry) => entry.length > 0)
 }
 
+const generateUserId = () => `usr_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
+const normalizeEmail = (value) => sanitizeString(value).toLowerCase()
+
 const sanitizeRouterDescriptionEntry = (entry = {}, fallback = {}) => ({
   highlight: sanitizeString(entry?.highlight ?? fallback?.highlight ?? ''),
   description: sanitizeString(entry?.description ?? fallback?.description ?? ''),
@@ -222,6 +226,7 @@ const sanitizeUserProfile = (profile = {}, fallback = DEFAULT_USER_PROFILE) => (
   excludeWords: sanitizeStringArray(profile?.excludeWords ?? fallback?.excludeWords ?? []),
   nearStation: sanitizeBooleanFlag(profile?.nearStation, fallback?.nearStation ?? false),
   referencePrompt: sanitizeString(profile?.referencePrompt ?? fallback?.referencePrompt ?? ''),
+  userId: sanitizeString(profile?.userId ?? fallback?.userId ?? ''),
   admin: sanitizeAdminProfile(profile?.admin, fallback?.admin),
 })
 
@@ -491,6 +496,21 @@ export const handler = async (event, context) => {
     }
 
     const newConfig = mergeWithDefault(payload, existingConfig)
+
+    const existingAdminEmail = normalizeEmail(existingConfig.userProfile?.admin?.email || '')
+    const incomingAdminEmail = normalizeEmail(newConfig.userProfile?.admin?.email || '')
+    const existingUserId = sanitizeString(existingConfig.userProfile?.userId)
+    const incomingUserId = sanitizeString(newConfig.userProfile?.userId)
+    const hasIncomingEmail = Boolean(incomingAdminEmail)
+    const emailChanged = hasIncomingEmail && incomingAdminEmail !== existingAdminEmail
+
+    if (emailChanged) {
+      newConfig.userProfile.userId = generateUserId()
+    } else if (!incomingUserId && existingUserId) {
+      newConfig.userProfile.userId = existingUserId
+    } else if (!incomingUserId && hasIncomingEmail) {
+      newConfig.userProfile.userId = generateUserId()
+    }
 
     const incomingKey = sanitizeSecretInput(payload.aiSettings?.geminiApiKey)
     newConfig.aiSettings.geminiApiKey = incomingKey || existingConfig.aiSettings.geminiApiKey || ''
