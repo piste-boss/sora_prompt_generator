@@ -38,6 +38,7 @@
           <div class="admin__menu-panel" id="user-tab-menu" data-role="tab-menu" aria-hidden="true">
             <nav class="admin__tabs" aria-label="設定メニュー">
               <button type="button" class="admin__tab is-active" data-tab-target="admin-settings">ユーザー情報</button>
+              <button type="button" class="admin__tab" data-tab-target="reference-prompt">参考プロンプト</button>
             </nav>
           </div>
         </div>
@@ -45,7 +46,6 @@
           <section class="admin__panel is-active" data-tab-panel="admin-settings">
             <section class="admin__card">
               <h2>ユーザー情報</h2>
-              <p class="admin__hint">連絡先とパスワードを登録し、AI設定の編集権限を管理します。</p>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">名前</span>
@@ -74,6 +74,20 @@
                     </span>
                     <span class="admin__toggle-status" data-role="profile-admin-password-status">OFF</span>
                   </span>
+                </label>
+              </div>
+            </section>
+          </section>
+          <section class="admin__panel" data-tab-panel="reference-prompt">
+            <section class="admin__card">
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">参考プロンプト</span>
+                  <textarea
+                    name="referencePrompt"
+                    rows="6"
+                    placeholder="例：AIに学習させる参考プロンプトを入力"
+                  ></textarea>
                 </label>
               </div>
             </section>

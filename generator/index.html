@@ -10,7 +10,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../src/generator/style.css" />
-    <title>口コミ生成 - SORA Prompt Generator</title>
+    <title>SORA Prompt Generator</title>
   </head>
   <body>
     <div id="generator-app" data-prompt-key="page1" data-tier="beginner">
@@ -21,25 +21,20 @@
             <span data-role="brand-text">SORA Prompt Generator</span>
           </p>
           <p class="generator__page-tag">生成ページ</p>
-          <h1 class="generator__title">ご協力ありがとうございました</h1>
-          <p class="generator__lead">
-            「口コミ生成」ボタンを押すと、アンケート結果を元にAIが文章を作成します。内容をご確認のうえ、コピペして投稿お願いします。
-          </p>
+          <p class="generator__lead">生成されたプロンプトをSORAにコピペして動画を生成してください。</p>
         </header>
         <section class="generator__controls">
-          <button type="button" class="generator__button" data-role="generate">口コミ生成</button>
+          <button type="button" class="generator__button" data-role="generate">プロンプト生成</button>
           <p class="generator__hint">生成には数秒かかる場合があります。</p>
         </section>
         <section class="generator__output">
-          <label class="generator__output-label" for="generated-text">生成された口コミ文章</label>
+          <label class="generator__output-label" for="generated-text">SORA Prompt</label>
           <textarea id="generated-text" class="generator__textarea" readonly></textarea>
         </section>
         <section class="generator__actions">
-          <button type="button" class="generator__action-button" data-role="copy">コピー</button>
+          <button type="button" class="generator__action-button" data-role="copy">COPY</button>
           <span class="generator__link-wrapper">
-            <span>口コミの投稿は </span>
-            <a href="#" target="_blank" rel="noopener noreferrer" data-role="maps-link">こちら</a>
-            <span> からお願いします。</span>
+            <a href="#" target="_blank" rel="noopener noreferrer" data-role="maps-link">Go to SORA</a>
           </span>
         </section>
         <p class="generator__status" data-role="status" hidden></p>

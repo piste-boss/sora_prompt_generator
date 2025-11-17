@@ -141,6 +141,7 @@ const DEFAULT_USER_PROFILE = {
   keywords: [],
   excludeWords: [],
   nearStation: false,
+  referencePrompt: '',
   admin: {
     name: '',
     email: '',
@@ -220,6 +221,7 @@ const sanitizeUserProfile = (profile = {}, fallback = DEFAULT_USER_PROFILE) => (
   keywords: sanitizeStringArray(profile?.keywords ?? fallback?.keywords ?? []),
   excludeWords: sanitizeStringArray(profile?.excludeWords ?? fallback?.excludeWords ?? []),
   nearStation: sanitizeBooleanFlag(profile?.nearStation, fallback?.nearStation ?? false),
+  referencePrompt: sanitizeString(profile?.referencePrompt ?? fallback?.referencePrompt ?? ''),
   admin: sanitizeAdminProfile(profile?.admin, fallback?.admin),
 })
 

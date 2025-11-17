@@ -41,6 +41,7 @@
               <button type="button" class="admin__tab is-active" data-tab-target="comm">通信設定</button>
               <button type="button" class="admin__tab" data-tab-target="ai-settings">AI設定</button>
               <button type="button" class="admin__tab" data-tab-target="landing">トップページ</button>
+              <button type="button" class="admin__tab" data-tab-target="user-data">ユーザーデータ</button>
               <button type="button" class="admin__tab" data-tab-target="links">リンク先設定</button>
               <button type="button" class="admin__tab" data-tab-target="branding">ロゴ設定</button>
             </nav>
@@ -67,8 +68,7 @@
               </div>
             </section>
             <section class="admin__card admin__card--results">
-              <h2>アンケート保存先</h2>
-              <p class="admin__hint">結果を閲覧できるスプレッドシートの共有リンク（ビュー専用でも可）。管理メモ用に保存されます。</p>
+              <h2>設問回答保存先</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">スプレッドシートURL</span>
@@ -82,13 +82,38 @@
               </div>
             </section>
             <section class="admin__card admin__card--results">
-              <h2>プロンプトデータ</h2>
+              <h2>回答データ読み取り</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
-                  <span class="admin__field-label">アンケート1 GAS URL</span>
+                  <span class="admin__field-label">GAS URL</span>
                   <input
                     type="url"
                     name="prompt_page1_gasUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            </section>
+          </section>
+          <section class="admin__panel" data-tab-panel="user-data">
+            <section class="admin__card">
+              <h2>ユーザーデータ</h2>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">保存先スプレッドシートURL</span>
+                  <input
+                    type="url"
+                    name="userDataSpreadsheetUrl"
+                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">GAS URL</span>
+                  <input
+                    type="url"
+                    name="userDataSubmitGasUrl"
                     placeholder="https://script.google.com/macros/s/.../exec"
                     autocomplete="off"
                   />
@@ -121,14 +146,7 @@
                 </label>
               </div>
             </section>
-            <section class="admin__card">
-              <h2>AIプロンプト</h2>
-              <p class="admin__hint">生成ページごとのAIへの指示内容と導線を設定します。</p>
-            </section>
             <section class="admin__card admin__card--prompt" data-prompt-key="page1">
-              <div class="admin__prompt-header">
-                <h3 class="admin__card-subtitle">生成ページ1（初級）</h3>
-              </div>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">プロンプト</span>
@@ -143,7 +161,6 @@
           </section>
           <section class="admin__panel" data-tab-panel="landing">
             <section class="admin__card">
-              <h2>プロンプト設定</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">タイトル</span>
@@ -182,8 +199,7 @@
           </section>
           <section class="admin__panel" data-tab-panel="links">
             <section class="admin__card">
-              <h2>Googleマップリンク</h2>
-              <p class="admin__hint">生成ページの「マップで確認する」リンクに使用するURLを設定します。</p>
+              <h2>リンク先</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">URL</span>

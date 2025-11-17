@@ -68,6 +68,7 @@ const DEFAULT_USER_PROFILE = {
   keywords: [],
   excludeWords: [],
   nearStation: false,
+  referencePrompt: '',
   admin: {
     name: '',
     email: '',
@@ -296,6 +297,7 @@ const userProfileFields = {
   excludeWords: createProfileFieldArray('profileExcludeWord'),
   nearStation: form.elements.profileNearStation,
   nearStationStatus: app.querySelector('[data-role="profile-near-station-status"]'),
+  referencePrompt: form.elements.referencePrompt,
   admin: {
     name: form.elements.profileAdminName,
     email: form.elements.profileAdminEmail,
@@ -437,6 +439,7 @@ const hasUserProfileInputs = () =>
       userProfileFields.keywords.some(Boolean) ||
       userProfileFields.excludeWords.some(Boolean) ||
       userProfileFields.nearStation ||
+      userProfileFields.referencePrompt ||
       (userProfileFields.admin &&
         (userProfileFields.admin.name ||
           userProfileFields.admin.email ||
@@ -455,6 +458,7 @@ const setUserProfileValues = (profile = {}) => {
   assign(userProfileFields.industry, profile.industry)
   assign(userProfileFields.customers, profile.customers)
   assign(userProfileFields.strengths, profile.strengths)
+  assign(userProfileFields.referencePrompt, profile.referencePrompt)
 
   const keywords = Array.isArray(profile.keywords) ? profile.keywords : []
   userProfileFields.keywords.forEach((field, index) => {
@@ -520,6 +524,7 @@ const getUserProfilePayload = () => {
       userProfileFields.nearStation != null
         ? Boolean(userProfileFields.nearStation.checked)
         : Boolean(baseProfile.nearStation),
+    referencePrompt: getValue(userProfileFields.referencePrompt, baseProfile.referencePrompt || ''),
     admin: {
       name: getValue(userProfileFields.admin?.name, baseProfile.admin?.name || ''),
       email: getValue(userProfileFields.admin?.email, baseProfile.admin?.email || ''),
