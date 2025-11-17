@@ -35,6 +35,12 @@ npm run build
 - `/.netlify/functions/generate` : GASアプリから取得したデータをGemini APIに渡し、口コミ文章を生成します。
 - `/.netlify/functions/upload` : Blobs動作確認用のサンプル。
 
+## Netlify Blobs ストア
+
+- `netlify/functions/_lib/store.js:3` でデフォルトストア名を `sora_prompt_generator` に設定しており、設定・ルーター情報などの Functions はすべてこのストアを利用します。
+- `netlify/functions/upload.js:8` のようにアップロード用途は `sora_prompt_generator_uploads` を利用し、設定ストアと分離しています。
+- 必要に応じて Netlify 側で `NETLIFY_BLOBS_STORE`（および `NETLIFY_SITE_ID`, `NETLIFY_BLOBS_TOKEN` などのトークン類）を `sora_prompt_generator` に合わせて設定し、`npm install && npm run dev` や `npm run build` で動作確認してください。
+
 ### 環境変数
 
 Netlify 上で以下を設定してください。
