@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../src/admin/style.css" />
+    <title>管理ページ</title>
+  </head>
+  <body>
+    <div id="admin-app" data-app-role="admin">
+      <noscript>
+        <p style="padding:1rem; text-align:center;">JavaScriptを有効にしてご利用ください。</p>
+      </noscript>
+      <main class="admin">
+        <header class="admin__header">
+          <p class="admin__badge">管理ページ</p>
+          <h1 class="admin__title">システム設定</h1>
+          <p class="admin__lead"><a href="/user/">ユーザー設定ページはこちら</a></p>
+        </header>
+        <div class="admin__menu" data-role="tab-menu-container">
+          <button
+            type="button"
+            class="admin__menu-trigger"
+            data-role="tab-menu-trigger"
+            aria-expanded="false"
+            aria-controls="admin-tab-menu"
+            aria-label="メニュー"
+          >
+            <span class="sr-only">メニュー</span>
+            <span class="admin__menu-trigger-icon" aria-hidden="true">≡</span>
+          </button>
+          <div class="admin__menu-panel" id="admin-tab-menu" data-role="tab-menu" aria-hidden="true">
+            <nav class="admin__tabs" aria-label="設定メニュー">
+              <button type="button" class="admin__tab is-active" data-tab-target="ai">システム設定</button>
+              <button type="button" class="admin__tab" data-tab-target="user-data">店舗情報</button>
+            </nav>
+          </div>
+        </div>
+        <form id="config-form" class="admin__form">
+          <section class="admin__panel is-active" data-tab-panel="ai">
+            <section class="admin__card">
+              <h2>トップページリンク先</h2>
+              <p class="admin__hint">1行につき1つのURLを登録します。</p>
+              <div class="admin__fields">
+                <label class="admin__field">
+                  <span class="admin__field-label">アンケート1リンク</span>
+                  <textarea
+                    name="beginnerLinks"
+                    rows="4"
+                    placeholder="https://example.com/form/beginner-1"
+                  ></textarea>
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">アンケート2リンク</span>
+                  <textarea
+                    name="intermediateLinks"
+                    rows="4"
+                    placeholder="https://example.com/form/intermediate-1"
+                  ></textarea>
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">アンケート3リンク</span>
+                  <textarea
+                    name="advancedLinks"
+                    rows="4"
+                    placeholder="https://example.com/form/advanced-1"
+                  ></textarea>
+                </label>
+              </div>
+            </section>
+            <section class="admin__card">
+              <h2>口コミAI設定</h2>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">モデル名</span>
+                  <input
+                    type="text"
+                    name="model"
+                    placeholder="例: gemini-1.5-flash-latest"
+                    autocomplete="off"
+                  />
+                  <span class="admin__field-hint">使用するGeminiモデルを指定します。未入力の場合はデフォルトモデルを利用します。</span>
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">Gemini APIキー</span>
+                  <input
+                    type="password"
+                    name="geminiApiKey"
+                    placeholder="例: AIza..."
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            </section>
+            <section class="admin__card admin__card--results">
+              <h2>アンケートデータ</h2>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">アンケート1 GAS URL</span>
+                  <input
+                    type="url"
+                    name="prompt_page1_gasUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">アンケート2 GAS URL</span>
+                  <input
+                    type="url"
+                    name="prompt_page2_gasUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">アンケート3 GAS URL</span>
+                  <input
+                    type="url"
+                    name="prompt_page3_gasUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            </section>
+            <section class="admin__card admin__card--results">
+              <h2>アンケート送信App</h2>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">送信先API(URL)</span>
+                  <input
+                    type="url"
+                    name="surveyEndpointUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">APIキー（任意）</span>
+                  <input type="text" name="surveyApiKey" placeholder="例: Bearer 用シークレット" autocomplete="off" />
+                </label>
+              </div>
+            </section>
+          </section>
+        <section class="admin__panel" data-tab-panel="user-data">
+          <section class="admin__card">
+            <h2>店舗情報保存先</h2>
+            <p class="admin__hint">ユーザー設定ページの入力内容を保存／読み取りするGASやスプレッドシートを登録します。</p>
+            <div class="admin__fields admin__fields--single">
+              <label class="admin__field">
+                <span class="admin__field-label">スプレッドシートURL</span>
+                <input
+                  type="url"
+                  name="userDataSpreadsheetUrl"
+                  placeholder="https://docs.google.com/spreadsheets/d/..."
+                  autocomplete="off"
+                />
+              </label>
+              <label class="admin__field">
+                <span class="admin__field-label">店舗情報保存GASエンドポイント</span>
+                <input
+                  type="url"
+                  name="userDataSubmitGasUrl"
+                  placeholder="https://script.google.com/macros/s/xxxx/exec"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="admin__field">
+                <span class="admin__field-label">店舗情報読み取りGAS URL</span>
+                <input
+                  type="url"
+                  name="userDataReadGasUrl"
+                  placeholder="https://script.google.com/macros/s/yyyy/exec"
+                  autocomplete="off"
+                />
+              </label>
+            </div>
+          </section>
+        </section>
+          <div class="admin__floating-submit">
+            <button type="submit" class="admin__submit admin__submit--floating">設定を保存</button>
+          </div>
+        </form>
+        <p class="admin__status" data-role="status"></p>
+      </main>
+    </div>
+    <script type="module" src="../src/admin/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "oiso-review-router",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1",
+    "vite": "^7.1.7"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^10.3.0",
+    "@netlify/functions": "^5.0.1",
+    "jsdom": "^27.1.0",
+    "qrcode": "^1.5.4"
+  }
+}
