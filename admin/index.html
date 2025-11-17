@@ -11,7 +11,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../src/admin/style.css" />
-    <title>管理ページ</title>
+    <title>adminページ</title>
   </head>
   <body>
     <div id="admin-app" data-app-role="admin">
@@ -21,7 +21,7 @@
       <main class="admin">
         <header class="admin__header">
           <p class="admin__badge">管理ページ</p>
-          <h1 class="admin__title">システム設定</h1>
+          <h1 class="admin__title">adminページ</h1>
           <p class="admin__lead"><a href="/user/">ユーザー設定ページはこちら</a></p>
         </header>
         <div class="admin__menu" data-role="tab-menu-container">
@@ -39,44 +39,13 @@
           <div class="admin__menu-panel" id="admin-tab-menu" data-role="tab-menu" aria-hidden="true">
             <nav class="admin__tabs" aria-label="設定メニュー">
               <button type="button" class="admin__tab is-active" data-tab-target="ai">システム設定</button>
-              <button type="button" class="admin__tab" data-tab-target="user-data">店舗情報</button>
             </nav>
           </div>
         </div>
         <form id="config-form" class="admin__form">
           <section class="admin__panel is-active" data-tab-panel="ai">
             <section class="admin__card">
-              <h2>トップページリンク先</h2>
-              <p class="admin__hint">1行につき1つのURLを登録します。</p>
-              <div class="admin__fields">
-                <label class="admin__field">
-                  <span class="admin__field-label">アンケート1リンク</span>
-                  <textarea
-                    name="beginnerLinks"
-                    rows="4"
-                    placeholder="https://example.com/form/beginner-1"
-                  ></textarea>
-                </label>
-                <label class="admin__field">
-                  <span class="admin__field-label">アンケート2リンク</span>
-                  <textarea
-                    name="intermediateLinks"
-                    rows="4"
-                    placeholder="https://example.com/form/intermediate-1"
-                  ></textarea>
-                </label>
-                <label class="admin__field">
-                  <span class="admin__field-label">アンケート3リンク</span>
-                  <textarea
-                    name="advancedLinks"
-                    rows="4"
-                    placeholder="https://example.com/form/advanced-1"
-                  ></textarea>
-                </label>
-              </div>
-            </section>
-            <section class="admin__card">
-              <h2>口コミAI設定</h2>
+              <h2>プロンプトgenerator</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">モデル名</span>
@@ -99,8 +68,58 @@
                 </label>
               </div>
             </section>
+            <section class="admin__card">
+              <h2>ロゴ設定</h2>
+              <p class="admin__hint">アプリ全体で表示されるロゴ画像を差し替えます。</p>
+              <div class="admin__brand">
+                <div class="admin__brand-preview" aria-live="polite">
+                  <img src="/vite.svg" alt="現在のロゴ" width="72" height="72" data-role="favicon-preview" />
+                </div>
+                <div class="admin__brand-actions">
+                  <label class="admin__field admin__field--file">
+                    <span class="admin__field-label">アイコン画像</span>
+                    <input type="file" name="brandingLogo" accept="image/png,image/svg+xml,image/x-icon,image/*" />
+                    <span class="admin__field-hint">100KB〜1MB程度の画像推奨です。</span>
+                  </label>
+                  <div class="admin__brand-buttons">
+                    <button type="button" class="admin__text-button" data-role="favicon-remove">画像をリセット</button>
+                  </div>
+                  <input type="hidden" name="brandingLogoData" />
+                </div>
+              </div>
+            </section>
+            <section class="admin__card">
+              <h2>ヘッダー画像</h2>
+              <p class="admin__hint">各ページのヘッダーで表示する画像を設定します。</p>
+              <div class="admin__brand admin__brand--header">
+                <div class="admin__brand-preview admin__brand-preview--header" aria-live="polite">
+                  <img
+                    src=""
+                    alt="現在のヘッダー画像"
+                    width="160"
+                    height="80"
+                    data-role="header-image-preview"
+                    hidden
+                  />
+                  <p class="admin__brand-placeholder" data-role="header-image-placeholder">
+                    現在ヘッダー画像は未設定です。
+                  </p>
+                </div>
+                <div class="admin__brand-actions">
+                  <label class="admin__field admin__field--file">
+                    <span class="admin__field-label">ヘッダー画像</span>
+                    <input type="file" name="brandingHeaderImage" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/*" />
+                    <span class="admin__field-hint">横長の画像（最大2MB程度）を推奨します。</span>
+                  </label>
+                  <div class="admin__brand-buttons">
+                    <button type="button" class="admin__text-button" data-role="header-image-remove">画像をリセット</button>
+                  </div>
+                  <input type="hidden" name="brandingHeaderImageData" />
+                </div>
+              </div>
+            </section>
             <section class="admin__card admin__card--results">
-              <h2>アンケートデータ</h2>
+              <h2>プロンプトデータ</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">アンケート1 GAS URL</span>
@@ -111,28 +130,76 @@
                     autocomplete="off"
                   />
                 </label>
+              </div>
+            </section>
+            <section class="admin__card">
+              <h2>プロンプト設定</h2>
+              <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
-                  <span class="admin__field-label">アンケート2 GAS URL</span>
+                  <span class="admin__field-label">タイトル</span>
                   <input
-                    type="url"
-                    name="prompt_page2_gasUrl"
-                    placeholder="https://script.google.com/macros/s/.../exec"
+                    type="text"
+                    name="form1Title"
+                    placeholder="体験の満足度を教えてください"
                     autocomplete="off"
                   />
                 </label>
                 <label class="admin__field">
-                  <span class="admin__field-label">アンケート3 GAS URL</span>
-                  <input
-                    type="url"
-                    name="prompt_page3_gasUrl"
-                    placeholder="https://script.google.com/macros/s/.../exec"
-                    autocomplete="off"
-                  />
+                  <span class="admin__field-label">リード文</span>
+                  <textarea
+                    name="form1Lead"
+                    rows="3"
+                    placeholder="星や選択式の設問に回答してください。内容は口コミ生成に活用されます。"
+                  ></textarea>
+                </label>
+              </div>
+            </section>
+            <section class="admin__card admin__card--questions">
+              <div class="admin__card-heading">
+                <h2>設問</h2>
+              </div>
+              <p class="admin__hint">
+                設問ごとに質問文や選択肢、回答形式（ドロップダウン / チェックボックス / テキスト入力 / 数字選択）を設定できます。
+              </p>
+              <div class="admin__question-list" data-role="form1-question-list"></div>
+              <div class="admin__question-actions">
+                <button type="button" class="admin__icon-button" data-role="form1-add-question">
+                  <span aria-hidden="true">＋</span>
+                  <span>設問を追加</span>
+                </button>
+              </div>
+            </section>
+            <section class="admin__card">
+              <h2>AIプロンプト</h2>
+              <p class="admin__hint">生成ページごとのAIへの指示内容と導線を設定します。</p>
+            </section>
+            <section class="admin__card">
+              <h2>Googleマップリンク</h2>
+              <p class="admin__hint">生成ページの「マップで確認する」リンクに使用するURLを設定します。</p>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">URL</span>
+                  <input type="url" name="mapsLink" placeholder="https://maps.app.goo.gl/..." autocomplete="off" />
+                </label>
+              </div>
+            </section>
+            <section class="admin__card admin__card--prompt" data-prompt-key="page1">
+              <div class="admin__prompt-header">
+                <h3 class="admin__card-subtitle">生成ページ1（初級）</h3>
+              </div>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">プロンプト</span>
+                  <textarea
+                    name="prompt_page1_prompt"
+                    rows="6"
+                    placeholder="生成時に利用する指示文を入力してください。"
+                  ></textarea>
                 </label>
               </div>
             </section>
             <section class="admin__card admin__card--results">
-              <h2>アンケート送信App</h2>
+              <h2>プロンプト設問送信App</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
                   <span class="admin__field-label">送信先API(URL)</span>
@@ -149,42 +216,22 @@
                 </label>
               </div>
             </section>
+            <section class="admin__card admin__card--results">
+              <h2>アンケート保存先</h2>
+              <p class="admin__hint">結果を閲覧できるスプレッドシートの共有リンク（ビュー専用でも可）。管理メモ用に保存されます。</p>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">スプレッドシートURL</span>
+                  <input
+                    type="url"
+                    name="surveySpreadsheetUrl"
+                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            </section>
           </section>
-        <section class="admin__panel" data-tab-panel="user-data">
-          <section class="admin__card">
-            <h2>店舗情報保存先</h2>
-            <p class="admin__hint">ユーザー設定ページの入力内容を保存／読み取りするGASやスプレッドシートを登録します。</p>
-            <div class="admin__fields admin__fields--single">
-              <label class="admin__field">
-                <span class="admin__field-label">スプレッドシートURL</span>
-                <input
-                  type="url"
-                  name="userDataSpreadsheetUrl"
-                  placeholder="https://docs.google.com/spreadsheets/d/..."
-                  autocomplete="off"
-                />
-              </label>
-              <label class="admin__field">
-                <span class="admin__field-label">店舗情報保存GASエンドポイント</span>
-                <input
-                  type="url"
-                  name="userDataSubmitGasUrl"
-                  placeholder="https://script.google.com/macros/s/xxxx/exec"
-                  autocomplete="off"
-                />
-              </label>
-              <label class="admin__field">
-                <span class="admin__field-label">店舗情報読み取りGAS URL</span>
-                <input
-                  type="url"
-                  name="userDataReadGasUrl"
-                  placeholder="https://script.google.com/macros/s/yyyy/exec"
-                  autocomplete="off"
-                />
-              </label>
-            </div>
-          </section>
-        </section>
           <div class="admin__floating-submit">
             <button type="submit" class="admin__submit admin__submit--floating">設定を保存</button>
           </div>
