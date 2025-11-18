@@ -57,7 +57,8 @@ const jsonResponse = (statusCode, payload = {}) => ({
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '')
 
 const buildPrompt = (prompt, dataSamples, referencePrompt = '') => {
-  const basePrompt = prompt ||
+  const basePrompt =
+    prompt ||
     '次のアンケート回答を参考に、100〜200文字程度の口コミを丁寧な日本語で作成してください。語尾や表現は自然で温かみのあるものにしてください。'
 
   const formattedSamples = Array.isArray(dataSamples)
@@ -75,9 +76,21 @@ const buildPrompt = (prompt, dataSamples, referencePrompt = '') => {
         .join('\n')
     : ''
 
-  const referenceSection = referencePrompt ? `\n\n参考プロンプト:\n${referencePrompt}` : ''
+  const sections = [`出力指示:\n${basePrompt}`]
 
-  return `${basePrompt}\n\n参考データ:\n${formattedSamples}${referenceSection}`
+  if (referencePrompt) {
+    sections.push(`必ず反映する参考プロンプト:\n${referencePrompt}`)
+  }
+
+  if (formattedSamples) {
+    sections.push(`参考データ:\n${formattedSamples}`)
+  } else if (!referencePrompt) {
+    sections.push('参考データ:\n(入力された回答データがありません)')
+  }
+
+  sections.push('出力する文章は上記すべての条件を満たすこと。')
+
+  return sections.join('\n\n---\n\n')
 }
 
 const extractTextFromGemini = (payload) => {
