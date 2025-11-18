@@ -311,6 +311,13 @@ body {
   box-shadow: 0 12px 24px rgba(74, 213, 255, 0.25);
 }
 
+.form2__badge--optional {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-soft);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: none;
+}
+
 .form2__question-instructions {
   margin: 0;
   font-size: 0.9rem;

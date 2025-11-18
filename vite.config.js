@@ -9,6 +9,7 @@ export default defineConfig({
         admin: resolve(__dirname, 'admin/index.html'),
         generator: resolve(__dirname, 'generator/index.html'),
         form1: resolve(__dirname, 'form1/index.html'),
+        login: resolve(__dirname, 'login/index.html'),
         user: resolve(__dirname, 'user/index.html'),
       },
     },

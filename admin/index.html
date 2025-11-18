@@ -116,7 +116,7 @@
               <h2>回答データ読み取り</h2>
               <div class="admin__fields admin__fields--single">
                 <label class="admin__field">
-                  <span class="admin__field-label">GAS URL</span>
+                  <span class="admin__field-label">保存GAS URL</span>
                   <input
                     type="url"
                     name="prompt_page1_gasUrl"
@@ -141,10 +141,19 @@
                   />
                 </label>
                 <label class="admin__field">
-                  <span class="admin__field-label">GAS URL</span>
+                  <span class="admin__field-label">保存GAS URL</span>
                   <input
                     type="url"
                     name="userDataSubmitGasUrl"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                  />
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">読み取りGAS URL</span>
+                  <input
+                    type="url"
+                    name="userDataReadGasUrl"
                     placeholder="https://script.google.com/macros/s/.../exec"
                     autocomplete="off"
                   />

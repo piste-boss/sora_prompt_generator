@@ -1005,6 +1005,35 @@ body {
   box-shadow: 0 14px 28px rgba(74, 213, 255, 0.25);
 }
 
+.admin__button {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.admin__button:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin__button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin__profile-fetch {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .admin__floating-submit {
   position: fixed;
   right: clamp(1rem, 4vw, 2.4rem);

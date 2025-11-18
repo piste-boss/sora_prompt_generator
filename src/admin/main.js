@@ -69,6 +69,9 @@ const DEFAULT_USER_DATA_SETTINGS = {
   readGasUrl: '',
 }
 
+const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
+const PROFILE_SHEET_NAME = 'profiles'
+
 const DEFAULT_FORM1 = {
   title: '体験の満足度を教えてください',
   description: '星評価と設問にご協力ください。内容は生成されるクチコミのトーンに反映されます。',
@@ -148,6 +151,9 @@ if (!app) {
 const appRole = app.dataset.appRole || 'user'
 const isAdminApp = appRole === 'admin'
 const isUserApp = appRole === 'user'
+const searchParams = new URLSearchParams(window.location.search || '')
+const shouldForceProfileRegistration = isUserApp && searchParams.get('register') === '1'
+let enforceProfileCompletion = shouldForceProfileRegistration
 
 const queryWithinApp = (selector) => app.querySelector(selector) || document.querySelector(selector)
 
@@ -193,6 +199,8 @@ const promptFields = PROMPT_CONFIGS.map(({ key }) => ({
 
 const getPromptFieldByKey = (key) => promptFields.find((field) => field.key === key)
 
+const profileFetchButton = queryWithinApp('[data-role="profile-fetch"]')
+
 const referencePromptElements = {
   list: queryWithinApp('[data-role="reference-list"]'),
   empty: queryWithinApp('[data-role="reference-empty"]'),
@@ -216,6 +224,7 @@ const hasReferencePromptUI = Boolean(
 
 let referencePromptsState = []
 let editingReferencePromptId = null
+let isFetchingStoredProfile = false
 
 const USER_PROFILE_FIELD_COUNT = 5
 
@@ -435,6 +444,11 @@ const hasUserDataSyncConfig = () => {
   return Boolean(settings.submitGasUrl && settings.spreadsheetUrl)
 }
 
+const hasUserDataReadConfig = () => {
+  const settings = getCurrentUserDataSettings()
+  return Boolean(settings.readGasUrl && settings.spreadsheetUrl)
+}
+
 const syncUserProfileExternally = async (profile, options = {}) => {
   const settings = getCurrentUserDataSettings()
   if (!settings.submitGasUrl || !settings.spreadsheetUrl) {
@@ -472,6 +486,84 @@ const syncUserProfileExternally = async (profile, options = {}) => {
     return {
       status: 'error',
       message: '店舗情報の保存に失敗しました。ネットワーク状況をご確認ください。',
+    }
+  }
+}
+
+const fetchStoredUserProfile = async () => {
+  if (!profileFetchButton) return
+  if (isFetchingStoredProfile) return
+  if (!hasUserProfileInputs()) {
+    setStatus('ユーザー情報の入力欄が見つかりません。', 'error')
+    return
+  }
+  if (!hasUserDataReadConfig()) {
+    setStatus('店舗情報読み取りGAS URLまたはスプレッドシートURLが未設定です。', 'error')
+    return
+  }
+
+  const emailField = userProfileFields.admin?.email
+  const passwordField = userProfileFields.admin?.password
+  if (!emailField || !passwordField) {
+    setStatus('メールアドレスとパスワードの入力欄が見つかりません。', 'error')
+    return
+  }
+
+  const emailValue = (emailField.value || '').trim()
+  const passwordValue = (passwordField.value || '').trim()
+  if (!emailValue || !passwordValue) {
+    setStatus('メールアドレスとパスワードを入力してください。', 'error')
+    return
+  }
+
+  isFetchingStoredProfile = true
+  profileFetchButton.setAttribute('disabled', 'true')
+  setStatus('保存済みの情報を読み込んでいます…', 'info', { autoHide: false })
+  await waitForStatusPaint()
+
+  try {
+    const response = await fetch('/.netlify/functions/user-data-read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: emailValue,
+        password: passwordValue,
+        sheetName: PROFILE_SHEET_NAME,
+      }),
+    })
+    const responseText = await response.text()
+    let payload = {}
+    try {
+      payload = responseText ? JSON.parse(responseText) : {}
+    } catch {
+      payload = {}
+    }
+
+    if (!response.ok) {
+      const message =
+        payload?.message || payload?.error || '保存済みの情報を読み込めませんでした。時間をおいて再度お試しください。'
+      throw new Error(message)
+    }
+
+    const profile =
+      (payload && typeof payload.profile === 'object' && payload.profile) ||
+      (payload && typeof payload.data === 'object' && payload.data.profile) ||
+      (payload && typeof payload.data === 'object' && payload.data) ||
+      null
+
+    if (!profile) {
+      throw new Error('一致するユーザー情報が見つかりませんでした。')
+    }
+
+    setUserProfileValues(profile)
+    setStatus('保存済みのプロフィールを読み込みました。', 'success')
+  } catch (error) {
+    console.error('Failed to fetch stored profile:', error)
+    setStatus(error.message || '保存済みの情報を読み込めませんでした。', 'error')
+  } finally {
+    isFetchingStoredProfile = false
+    if (profileFetchButton) {
+      profileFetchButton.removeAttribute('disabled')
     }
   }
 }
@@ -557,6 +649,57 @@ const setUserProfileValues = (profile = {}) => {
     userProfileFields.admin.toggle.checked = false
   }
   updateAdminPasswordVisibility()
+
+  ensureProfileRegistrationSatisfied()
+}
+
+const readSessionProfilePrefill = () => {
+  try {
+    const raw = window.sessionStorage.getItem(PROFILE_PREFILL_STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+const consumeSessionProfilePrefill = () => {
+  const payload = readSessionProfilePrefill()
+  if (payload) {
+    try {
+      window.sessionStorage.removeItem(PROFILE_PREFILL_STORAGE_KEY)
+    } catch {
+      // noop
+    }
+  }
+  return payload
+}
+
+const applyProfilePrefillFromSession = () => {
+  if (!isUserApp) return
+  const payload = consumeSessionProfilePrefill()
+  if (!payload) return
+  const profile =
+    (payload && typeof payload.profile === 'object' && payload.profile) || payload
+  if (!profile || Object.keys(profile).length === 0) return
+  setUserProfileValues(profile)
+  setStatus('保存済みのプロフィールを読み込みました。', 'success')
+}
+
+const isProfileRegistrationComplete = () => {
+  if (!userProfileFields.admin) return false
+  const name = (userProfileFields.admin.name?.value || '').trim()
+  const email = (userProfileFields.admin.email?.value || '').trim()
+  const password = (userProfileFields.admin.password?.value || '').trim()
+  return Boolean(name && email && password)
+}
+
+const ensureProfileRegistrationSatisfied = () => {
+  if (!enforceProfileCompletion) return
+  if (isProfileRegistrationComplete()) {
+    enforceProfileCompletion = false
+    setStatus('ユーザー情報の入力が完了しました。', 'success')
+  }
 }
 
 const collectProfileListValues = (fields) =>
@@ -1357,7 +1500,15 @@ const activateTab = (target) => {
 
 tabButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    activateTab(button.dataset.tabTarget)
+    const target = button.dataset.tabTarget
+    if (enforceProfileCompletion && target !== 'admin-settings') {
+      if (!isProfileRegistrationComplete()) {
+        setStatus('会員登録のため、先にユーザー情報を入力してください。', 'error')
+        return
+      }
+      enforceProfileCompletion = false
+    }
+    activateTab(target)
     closeTabMenu()
   })
 })
@@ -1409,6 +1560,28 @@ if (userProfileFields.admin?.toggle) {
   updateAdminPasswordVisibility()
 } else {
   updateAdminPasswordVisibility()
+}
+
+if (profileFetchButton) {
+  profileFetchButton.addEventListener('click', () => {
+    fetchStoredUserProfile()
+  })
+}
+
+const profileRegistrationInputs = [
+  userProfileFields.admin?.name,
+  userProfileFields.admin?.email,
+  userProfileFields.admin?.password,
+]
+
+profileRegistrationInputs.forEach((input) => {
+  input?.addEventListener('input', () => {
+    ensureProfileRegistrationSatisfied()
+  })
+})
+
+if (shouldForceProfileRegistration) {
+  setStatus('会員登録のため、まずユーザー情報を入力してください。', 'info', { autoHide: false })
 }
 
 if (hasReferencePromptUI) {
@@ -1527,6 +1700,10 @@ function populateForm(config) {
   const branding = config.branding || {}
   applyBrandingToUI(branding.logoDataUrl || branding.faviconDataUrl || '')
   applyHeaderImageToUI(branding.headerImageDataUrl || '')
+
+  if (isUserApp) {
+    applyProfilePrefillFromSession()
+  }
 }
 
 const loadConfig = async () => {
