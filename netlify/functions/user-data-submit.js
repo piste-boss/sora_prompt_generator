@@ -195,6 +195,9 @@ export const handler = async (event, context) => {
     ...payload.profile,
     referencePrompts,
     referencePrompt: primaryReferencePrompt,
+    referencePromptsSummary,
+    referencePromptsJson,
+    referencePromptCount: referencePrompts.length,
   }
 
   const requestBody = JSON.stringify({ profile: profilePayload, metadata })
