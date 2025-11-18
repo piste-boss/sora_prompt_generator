@@ -45,6 +45,47 @@ const extractSpreadsheetId = (url) => {
   return ''
 }
 
+const normalizeReferencePrompts = (entries, fallback = '') => {
+  const normalized = Array.isArray(entries)
+    ? entries
+        .map((entry, index) => {
+          const body = sanitizeString(entry?.body)
+          if (!body) return null
+          return {
+            id: sanitizeString(entry?.id) || `ref-${index + 1}`,
+            title: sanitizeString(entry?.title),
+            body,
+          }
+        })
+        .filter(Boolean)
+    : []
+
+  if (normalized.length > 0) {
+    return normalized
+  }
+
+  const fallbackBody = sanitizeString(fallback)
+  if (!fallbackBody) {
+    return []
+  }
+
+  return [
+    {
+      id: 'ref-primary',
+      title: '参考プロンプト',
+      body: fallbackBody,
+    },
+  ]
+}
+
+const createReferencePromptsSummary = (entries) =>
+  entries
+    .map((entry, index) => {
+      const label = entry.title || `参考プロンプト${index + 1}`
+      return `${label}\n${entry.body}`
+    })
+    .join('\n\n-----\n\n')
+
 const getStoredConfig = async (context) => {
   const store = createStore(undefined, context)
   const saved = await store.get(CONFIG_KEY, { type: 'json' }).catch(() => null)
@@ -121,6 +162,13 @@ export const handler = async (event, context) => {
   )
   const shouldCreateUserSheet = Boolean(toBooleanFlag(overrideMetadata.createUserSheet) && requestedUserId)
   const profileAdminEmail = sanitizeString(payload.profile?.admin?.email)
+  const referencePrompts = normalizeReferencePrompts(
+    payload.profile?.referencePrompts,
+    payload.profile?.referencePrompt,
+  )
+  const primaryReferencePrompt = referencePrompts[0]?.body || sanitizeString(payload.profile?.referencePrompt)
+  const referencePromptsSummary = referencePrompts.length > 0 ? createReferencePromptsSummary(referencePrompts) : ''
+  const referencePromptsJson = JSON.stringify(referencePrompts)
 
   const metadata = {
     spreadsheetId, // 互換
@@ -136,9 +184,20 @@ export const handler = async (event, context) => {
     userSheetName: requestedUserId,
     userEmail: profileAdminEmail,
     createUserSheet: shouldCreateUserSheet,
+    referencePrompt: primaryReferencePrompt,
+    referencePromptCount: referencePrompts.length,
+    referencePrompts,
+    referencePromptsJson,
+    referencePromptsSummary,
   }
 
-  const requestBody = JSON.stringify({ profile: payload.profile, metadata })
+  const profilePayload = {
+    ...payload.profile,
+    referencePrompts,
+    referencePrompt: primaryReferencePrompt,
+  }
+
+  const requestBody = JSON.stringify({ profile: profilePayload, metadata })
 
   try {
     const response = await fetch(submitGasUrl, {

@@ -149,11 +149,13 @@ const appRole = app.dataset.appRole || 'user'
 const isAdminApp = appRole === 'admin'
 const isUserApp = appRole === 'user'
 
-const form = app.querySelector('#config-form')
-const statusEl = app.querySelector('[data-role="status"]')
-const tabMenuContainer = app.querySelector('[data-role="tab-menu-container"]')
-const tabMenuTrigger = app.querySelector('[data-role="tab-menu-trigger"]')
-const tabMenu = app.querySelector('[data-role="tab-menu"]')
+const queryWithinApp = (selector) => app.querySelector(selector) || document.querySelector(selector)
+
+const form = queryWithinApp('#config-form')
+const statusEl = queryWithinApp('[data-role="status"]')
+const tabMenuContainer = queryWithinApp('[data-role="tab-menu-container"]')
+const tabMenuTrigger = queryWithinApp('[data-role="tab-menu-trigger"]')
+const tabMenu = queryWithinApp('[data-role="tab-menu"]')
 const STATUS_VISIBLE_CLASS = 'admin__status--visible'
 let statusHideTimer = null
 
@@ -192,18 +194,18 @@ const promptFields = PROMPT_CONFIGS.map(({ key }) => ({
 const getPromptFieldByKey = (key) => promptFields.find((field) => field.key === key)
 
 const referencePromptElements = {
-  list: app.querySelector('[data-role="reference-list"]'),
-  empty: app.querySelector('[data-role="reference-empty"]'),
-  addButton: app.querySelector('[data-role="reference-add"]'),
-  count: app.querySelector('[data-role="reference-count"]'),
-  modal: app.querySelector('[data-role="reference-modal"]'),
-  overlay: app.querySelector('[data-role="reference-modal-overlay"]'),
-  close: app.querySelector('[data-role="reference-modal-close"]'),
-  cancel: app.querySelector('[data-role="reference-modal-cancel"]'),
-  titleInput: app.querySelector('[data-role="reference-modal-title-input"]'),
-  bodyInput: app.querySelector('[data-role="reference-modal-body-input"]'),
-  saveButton: app.querySelector('[data-role="reference-modal-save"]'),
-  deleteButton: app.querySelector('[data-role="reference-modal-delete"]'),
+  list: queryWithinApp('[data-role="reference-list"]'),
+  empty: queryWithinApp('[data-role="reference-empty"]'),
+  addButton: queryWithinApp('[data-role="reference-add"]'),
+  count: queryWithinApp('[data-role="reference-count"]'),
+  modal: queryWithinApp('[data-role="reference-modal"]'),
+  overlay: queryWithinApp('[data-role="reference-modal-overlay"]'),
+  close: queryWithinApp('[data-role="reference-modal-close"]'),
+  cancel: queryWithinApp('[data-role="reference-modal-cancel"]'),
+  titleInput: queryWithinApp('[data-role="reference-modal-title-input"]'),
+  bodyInput: queryWithinApp('[data-role="reference-modal-body-input"]'),
+  saveButton: queryWithinApp('[data-role="reference-modal-save"]'),
+  deleteButton: queryWithinApp('[data-role="reference-modal-delete"]'),
 }
 
 const hasReferencePromptUI = Boolean(
