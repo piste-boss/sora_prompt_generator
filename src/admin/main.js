@@ -1588,6 +1588,12 @@ form.addEventListener('submit', async (event) => {
     } else {
       setStatus('設定を保存しました。', 'success')
     }
+
+    if (isUserApp) {
+      setTimeout(() => {
+        window.location.assign('/')
+      }, 800)
+    }
   } catch (error) {
     console.error(error)
     setStatus(error.message, 'error')

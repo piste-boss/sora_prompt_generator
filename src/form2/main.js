@@ -76,7 +76,6 @@ const questionRefs = new Map()
 let currentFormConfig = DEFAULT_FORM
 let surveyResultsConfig = { ...DEFAULT_SURVEY_RESULTS }
 let isSubmitting = false
-let hasLoadedUserPanel = false
 
 const readCachedConfig = () => {
   try {
@@ -158,42 +157,13 @@ const applyBrandingLogo = (branding = {}) => {
   }
 }
 
-const userPanel = document.querySelector('[data-role="user-panel"]')
-const userPanelFrame = document.querySelector('[data-role="user-panel-frame"]')
-const userPanelOpeners = document.querySelectorAll('[data-role="user-panel-open"]')
-const userPanelClose = document.querySelector('[data-role="user-panel-close"]')
-const userPanelOverlay = document.querySelector('[data-role="user-panel-overlay"]')
-
-const toggleUserPanel = (shouldOpen) => {
-  if (!userPanel) return
-  if (shouldOpen) {
-    userPanel.classList.add('is-open')
-    userPanel.setAttribute('aria-hidden', 'false')
-    document.body.classList.add('user-panel-open')
-    if (!hasLoadedUserPanel && userPanelFrame?.dataset?.src) {
-      userPanelFrame.src = userPanelFrame.dataset.src
-      hasLoadedUserPanel = true
-    }
-  } else {
-    userPanel.classList.remove('is-open')
-    userPanel.setAttribute('aria-hidden', 'true')
-    document.body.classList.remove('user-panel-open')
-  }
-}
-
-userPanelOpeners.forEach((button) => {
-  button.addEventListener('click', () => toggleUserPanel(true))
-})
-
-;[userPanelClose, userPanelOverlay].forEach((element) => {
-  if (!element) return
-  element.addEventListener('click', () => toggleUserPanel(false))
-})
-
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    toggleUserPanel(false)
-  }
+const userSettingsLinks = document.querySelectorAll('[data-role="user-settings-link"]')
+userSettingsLinks.forEach((link) => {
+  link.addEventListener('click', (event) => {
+    if (link.tagName === 'A') return
+    event.preventDefault()
+    window.location.assign('/user/')
+  })
 })
 
 const clearQuestionStatus = (statusNode) => {

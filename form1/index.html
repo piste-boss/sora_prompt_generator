@@ -55,9 +55,7 @@
             <img class="form2__brand-logo" data-role="brand-logo" alt="SORA Prompt Generator ロゴ" hidden />
             <span data-role="brand-text">SORA Prompt Generator</span>
           </p>
-          <button type="button" class="form2__menu-button" data-role="user-panel-open" aria-haspopup="dialog">
-            ユーザー設定
-          </button>
+          <a class="form2__menu-button" href="/user/" data-role="user-settings-link">ユーザー設定</a>
         </header>
         <section class="form2__questions" data-role="question-list"></section>
         <section class="form2__actions">
@@ -70,25 +68,6 @@
       <div class="app-loader__inner">
         <span class="app-loader__spinner" aria-hidden="true"></span>
         <p class="app-loader__text">ページを読み込み中です…</p>
-      </div>
-    </div>
-    <div class="form2__user-panel" data-role="user-panel" aria-hidden="true">
-      <div class="form2__user-panel-overlay" data-role="user-panel-overlay"></div>
-      <div class="form2__user-panel-body" role="dialog" aria-modal="true" aria-label="ユーザー設定">
-        <header class="form2__user-panel-header">
-          <h2>ユーザー設定</h2>
-          <button type="button" class="form2__user-panel-close" data-role="user-panel-close" aria-label="閉じる">
-            ✕
-          </button>
-        </header>
-        <iframe
-          class="form2__user-panel-frame"
-          title="ユーザー設定フォーム"
-          src="about:blank"
-          data-role="user-panel-frame"
-          data-src="/user/"
-          loading="lazy"
-        ></iframe>
       </div>
     </div>
     <script type="module" src="../src/form2/main.js"></script>
