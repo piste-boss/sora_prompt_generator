@@ -212,6 +212,32 @@ body {
   display: none !important;
 }
 
+.form2__menu-button {
+  align-self: flex-start;
+  margin-left: auto;
+  padding: 0.45rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(125, 91, 255, 0.15);
+  border: 1px solid rgba(125, 91, 255, 0.35);
+  color: var(--text-strong);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.form2__menu-button:hover,
+.form2__menu-button:focus-visible {
+  background: rgba(125, 91, 255, 0.35);
+  border-color: rgba(125, 91, 255, 0.55);
+  transform: translateY(-1px);
+}
+
+.form2__menu-button:active {
+  transform: translateY(0);
+}
+
 .form2__title {
   margin: 0;
   font-size: clamp(1.9rem, 5vw, 2.5rem);
@@ -458,6 +484,88 @@ body {
   margin: 0.4rem 0 0;
   font-size: 0.85rem;
   color: var(--accent-strong);
+}
+
+.form2__user-panel {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2rem);
+  z-index: 3000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.form2__user-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.form2__user-panel-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 6, 18, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.form2__user-panel-body {
+  position: relative;
+  width: min(1040px, 100%);
+  height: min(90vh, 780px);
+  background: rgba(5, 9, 23, 0.92);
+  border-radius: 1.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 40px 120px rgba(3, 6, 18, 0.8);
+  display: flex;
+  flex-direction: column;
+  padding: clamp(0.8rem, 2vw, 1.3rem);
+  z-index: 1;
+}
+
+.form2__user-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-strong);
+  gap: 0.8rem;
+}
+
+.form2__user-panel-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+}
+
+.form2__user-panel-close {
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-strong);
+  font-size: 1rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.form2__user-panel-close:hover,
+.form2__user-panel-close:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.form2__user-panel-frame {
+  margin-top: 0.8rem;
+  border: none;
+  width: 100%;
+  flex: 1;
+  border-radius: 1rem;
+  background: #020617;
+}
+
+body.user-panel-open {
+  overflow: hidden;
 }
 
 @media (max-width: 520px) {
