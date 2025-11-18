@@ -376,7 +376,7 @@ const renderQuestions = () => {
 
     const badge = document.createElement('span')
     badge.className = 'form2__badge'
-    badge.textContent = question.required ? '必須' : '任意'
+    badge.textContent = '必須'
     heading.appendChild(badge)
     questionCard.appendChild(heading)
 

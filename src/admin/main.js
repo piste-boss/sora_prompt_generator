@@ -54,6 +54,7 @@ const DEFAULT_USER_PROFILE = {
   excludeWords: [],
   nearStation: false,
   referencePrompt: '',
+  referencePrompts: [],
   userId: '',
   admin: {
     name: '',
@@ -102,6 +103,8 @@ const DEFAULT_FORM1 = {
 const SURVEY_FORM_DEFAULTS = {
   form1: DEFAULT_FORM1,
 }
+
+const MAX_REFERENCE_PROMPTS = 5
 
 const QUESTION_TYPES = [
   { value: 'dropdown', label: 'ドロップダウン' },
@@ -188,6 +191,30 @@ const promptFields = PROMPT_CONFIGS.map(({ key }) => ({
 
 const getPromptFieldByKey = (key) => promptFields.find((field) => field.key === key)
 
+const referencePromptElements = {
+  list: app.querySelector('[data-role="reference-list"]'),
+  empty: app.querySelector('[data-role="reference-empty"]'),
+  addButton: app.querySelector('[data-role="reference-add"]'),
+  count: app.querySelector('[data-role="reference-count"]'),
+  modal: app.querySelector('[data-role="reference-modal"]'),
+  overlay: app.querySelector('[data-role="reference-modal-overlay"]'),
+  close: app.querySelector('[data-role="reference-modal-close"]'),
+  cancel: app.querySelector('[data-role="reference-modal-cancel"]'),
+  titleInput: app.querySelector('[data-role="reference-modal-title-input"]'),
+  bodyInput: app.querySelector('[data-role="reference-modal-body-input"]'),
+  saveButton: app.querySelector('[data-role="reference-modal-save"]'),
+  deleteButton: app.querySelector('[data-role="reference-modal-delete"]'),
+}
+
+const hasReferencePromptUI = Boolean(
+  referencePromptElements.list ||
+    referencePromptElements.addButton ||
+    referencePromptElements.modal,
+)
+
+let referencePromptsState = []
+let editingReferencePromptId = null
+
 const USER_PROFILE_FIELD_COUNT = 5
 
 const createProfileFieldArray = (prefix) =>
@@ -203,7 +230,6 @@ const userProfileFields = {
   excludeWords: createProfileFieldArray('profileExcludeWord'),
   nearStation: form.elements.profileNearStation,
   nearStationStatus: app.querySelector('[data-role="profile-near-station-status"]'),
-  referencePrompt: form.elements.referencePrompt,
   admin: {
     name: form.elements.profileAdminName,
     email: form.elements.profileAdminEmail,
@@ -234,6 +260,167 @@ const setElementHidden = (element, hidden) => {
 const setToggleStatusText = (target, checked) => {
   if (!target) return
   target.textContent = checked ? 'ON' : 'OFF'
+}
+
+const generateReferencePromptId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return `ref-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+}
+
+const buildReferencePromptEntries = (entries, legacy = '') => {
+  const normalizedEntries = Array.isArray(entries) ? entries : []
+  const list = normalizedEntries
+    .map((entry, index) => {
+      const body = typeof entry?.body === 'string' ? entry.body.trim() : ''
+      const title = typeof entry?.title === 'string' ? entry.title.trim() : ''
+      if (!body) return null
+      const id =
+        typeof entry?.id === 'string' && entry.id.trim()
+          ? entry.id.trim()
+          : `ref-${Date.now()}-${index}`
+      return {
+        id,
+        title: title || `参考プロンプト${index + 1}`,
+        body,
+      }
+    })
+    .filter(Boolean)
+
+  if (list.length === 0) {
+    const legacyText = typeof legacy === 'string' ? legacy.trim() : ''
+    if (legacyText) {
+      list.push({
+        id: generateReferencePromptId(),
+        title: '参考プロンプト',
+        body: legacyText,
+      })
+    }
+  }
+
+  return list.slice(0, MAX_REFERENCE_PROMPTS)
+}
+
+const renderReferencePromptList = () => {
+  if (!referencePromptElements.list) return
+  referencePromptElements.list.innerHTML = ''
+
+  referencePromptsState.forEach((entry) => {
+    const item = document.createElement('li')
+    item.className = 'reference-prompts__item'
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'reference-prompts__item-button'
+    button.dataset.role = 'reference-item'
+    button.dataset.referenceId = entry.id
+    button.textContent = entry.title || '参考プロンプト'
+    item.appendChild(button)
+    referencePromptElements.list.appendChild(item)
+  })
+
+  if (referencePromptElements.empty) {
+    referencePromptElements.empty.classList.toggle('is-hidden', referencePromptsState.length > 0)
+  }
+
+  if (referencePromptElements.addButton) {
+    referencePromptElements.addButton.disabled =
+      referencePromptsState.length >= MAX_REFERENCE_PROMPTS
+  }
+
+  if (referencePromptElements.count) {
+    referencePromptElements.count.textContent = `${referencePromptsState.length} / ${MAX_REFERENCE_PROMPTS}`
+  }
+}
+
+const setReferencePromptState = (entries = []) => {
+  referencePromptsState = entries.slice(0, MAX_REFERENCE_PROMPTS)
+  renderReferencePromptList()
+}
+
+const closeReferencePromptModal = () => {
+  if (!referencePromptElements.modal) return
+  referencePromptElements.modal.classList.remove('is-open')
+  referencePromptElements.modal.setAttribute('aria-hidden', 'true')
+  if (referencePromptElements.titleInput) {
+    referencePromptElements.titleInput.value = ''
+  }
+  if (referencePromptElements.bodyInput) {
+    referencePromptElements.bodyInput.value = ''
+  }
+  editingReferencePromptId = null
+}
+
+const openReferencePromptModal = (entryId = null) => {
+  if (!referencePromptElements.modal) return
+  editingReferencePromptId = entryId
+  const entry = referencePromptsState.find((item) => item.id === entryId)
+  if (referencePromptElements.titleInput) {
+    referencePromptElements.titleInput.value = entry?.title || ''
+  }
+  if (referencePromptElements.bodyInput) {
+    referencePromptElements.bodyInput.value = entry?.body || ''
+  }
+  if (referencePromptElements.deleteButton) {
+    referencePromptElements.deleteButton.classList.toggle('is-hidden', !entry)
+  }
+  referencePromptElements.modal.classList.add('is-open')
+  referencePromptElements.modal.setAttribute('aria-hidden', 'false')
+  referencePromptElements.titleInput?.focus()
+}
+
+const handleReferencePromptSave = () => {
+  if (!hasReferencePromptUI) return
+  const titleValue = (referencePromptElements.titleInput?.value || '').trim()
+  const bodyValue = (referencePromptElements.bodyInput?.value || '').trim()
+
+  if (!titleValue) {
+    setStatus('参考プロンプトのタイトルを入力してください。', 'error')
+    referencePromptElements.titleInput?.focus()
+    return
+  }
+
+  if (!bodyValue) {
+    setStatus('参考プロンプトの本文を入力してください。', 'error')
+    referencePromptElements.bodyInput?.focus()
+    return
+  }
+
+  if (!editingReferencePromptId && referencePromptsState.length >= MAX_REFERENCE_PROMPTS) {
+    setStatus(`参考プロンプトは最大${MAX_REFERENCE_PROMPTS}件までです。`, 'error')
+    return
+  }
+
+  let updatedList = [...referencePromptsState]
+  if (editingReferencePromptId) {
+    updatedList = updatedList.map((entry) =>
+      entry.id === editingReferencePromptId
+        ? { ...entry, title: titleValue, body: bodyValue }
+        : entry,
+    )
+  } else {
+    updatedList.push({
+      id: generateReferencePromptId(),
+      title: titleValue,
+      body: bodyValue,
+    })
+  }
+
+  setReferencePromptState(updatedList)
+  closeReferencePromptModal()
+  setStatus('参考プロンプトを保存しました。', 'success')
+}
+
+const handleReferencePromptDelete = () => {
+  if (!editingReferencePromptId) {
+    closeReferencePromptModal()
+    return
+  }
+
+  const updatedList = referencePromptsState.filter((entry) => entry.id !== editingReferencePromptId)
+  setReferencePromptState(updatedList)
+  closeReferencePromptModal()
+  setStatus('参考プロンプトを削除しました。', 'success')
 }
 
 const getCurrentUserDataSettings = () => ({
@@ -317,7 +504,7 @@ const hasUserProfileInputs = () =>
       userProfileFields.keywords.some(Boolean) ||
       userProfileFields.excludeWords.some(Boolean) ||
       userProfileFields.nearStation ||
-      userProfileFields.referencePrompt ||
+      hasReferencePromptUI ||
       (userProfileFields.admin &&
         (userProfileFields.admin.name ||
           userProfileFields.admin.email ||
@@ -336,7 +523,10 @@ const setUserProfileValues = (profile = {}) => {
   assign(userProfileFields.industry, profile.industry)
   assign(userProfileFields.customers, profile.customers)
   assign(userProfileFields.strengths, profile.strengths)
-  assign(userProfileFields.referencePrompt, profile.referencePrompt)
+
+  setReferencePromptState(
+    buildReferencePromptEntries(profile.referencePrompts, profile.referencePrompt),
+  )
 
   const keywords = Array.isArray(profile.keywords) ? profile.keywords : []
   userProfileFields.keywords.forEach((field, index) => {
@@ -390,6 +580,18 @@ const getUserProfilePayload = () => {
     ? collectProfileListValues(userProfileFields.excludeWords)
     : baseProfile.excludeWords || []
 
+  const referencePrompts = hasReferencePromptUI
+    ? referencePromptsState.map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+        body: entry.body,
+      }))
+    : Array.isArray(baseProfile.referencePrompts)
+      ? baseProfile.referencePrompts
+      : []
+
+  const primaryReferencePrompt = referencePrompts[0]?.body || baseProfile.referencePrompt || ''
+
   return {
     storeName: getValue(userProfileFields.storeName, baseProfile.storeName || ''),
     storeKana: getValue(userProfileFields.storeKana, baseProfile.storeKana || ''),
@@ -402,7 +604,8 @@ const getUserProfilePayload = () => {
       userProfileFields.nearStation != null
         ? Boolean(userProfileFields.nearStation.checked)
         : Boolean(baseProfile.nearStation),
-    referencePrompt: getValue(userProfileFields.referencePrompt, baseProfile.referencePrompt || ''),
+    referencePrompts,
+    referencePrompt: primaryReferencePrompt,
     userId: typeof baseProfile.userId === 'string' ? baseProfile.userId : '',
     admin: {
       name: getValue(userProfileFields.admin?.name, baseProfile.admin?.name || ''),
@@ -1204,6 +1407,39 @@ if (userProfileFields.admin?.toggle) {
   updateAdminPasswordVisibility()
 } else {
   updateAdminPasswordVisibility()
+}
+
+if (hasReferencePromptUI) {
+  renderReferencePromptList()
+
+  referencePromptElements.addButton?.addEventListener('click', () => {
+    openReferencePromptModal(null)
+  })
+
+  referencePromptElements.list?.addEventListener('click', (event) => {
+    const target = event.target.closest('[data-role="reference-item"]')
+    if (!target) return
+    openReferencePromptModal(target.dataset.referenceId || null)
+  })
+
+  ;[referencePromptElements.overlay, referencePromptElements.close, referencePromptElements.cancel].forEach(
+    (element) => {
+      if (element) {
+        element.addEventListener('click', () => {
+          closeReferencePromptModal()
+        })
+      }
+    },
+  )
+
+  referencePromptElements.saveButton?.addEventListener('click', handleReferencePromptSave)
+  referencePromptElements.deleteButton?.addEventListener('click', handleReferencePromptDelete)
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && referencePromptElements.modal?.classList.contains('is-open')) {
+      closeReferencePromptModal()
+    }
+  })
 }
 
 if (tabButtons.length > 0) {

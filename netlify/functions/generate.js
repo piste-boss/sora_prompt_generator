@@ -56,6 +56,27 @@ const jsonResponse = (statusCode, payload = {}) => ({
 
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '')
 
+const formatReferencePrompts = (entries = [], fallback = '') => {
+  const normalizedEntries = Array.isArray(entries) ? entries : []
+  const formatted = normalizedEntries
+    .map((entry) => {
+      const body = sanitizeString(entry?.body)
+      if (!body) return ''
+      const title = sanitizeString(entry?.title) || '参考プロンプト'
+      return `【${title}】\n${body}`
+    })
+    .filter(Boolean)
+
+  if (formatted.length === 0) {
+    const fallbackText = sanitizeString(fallback)
+    if (fallbackText) {
+      formatted.push(fallbackText)
+    }
+  }
+
+  return formatted.join('\n\n')
+}
+
 const buildPrompt = (prompt, dataSamples, referencePrompt = '') => {
   const basePrompt =
     prompt ||
@@ -289,7 +310,10 @@ export const handler = async (event, context) => {
   const model = requestModel || DEFAULT_MODEL
   const geminiEndpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(geminiApiKey)}`
 
-  const referencePrompt = sanitizeString(userProfile.referencePrompt)
+  const referencePrompt = formatReferencePrompts(
+    userProfile.referencePrompts,
+    userProfile.referencePrompt,
+  )
   const completePrompt = buildPrompt(
     promptForModel,
     Array.isArray(dataSamples) ? dataSamples.slice(0, 5) : [],

@@ -12,6 +12,8 @@ const sanitizeSecretInput = (value) => {
   return sanitized === '******' ? '' : sanitized
 }
 
+const MAX_REFERENCE_PROMPTS = 5
+
 const DEFAULT_PROMPTS = {
   page1: { gasUrl: '', prompt: '' },
   page2: { gasUrl: '', prompt: '' },
@@ -65,6 +67,7 @@ const DEFAULT_USER_PROFILE = {
   excludeWords: [],
   nearStation: false,
   referencePrompt: '',
+  referencePrompts: [],
   userId: '',
   admin: {
     name: '',
@@ -112,6 +115,39 @@ const sanitizeStringArray = (value) => {
   return value.map((entry) => sanitizeString(entry)).filter((entry) => entry.length > 0)
 }
 
+const generateReferencePromptId = (seed = 0) =>
+  `ref-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}-${seed}`
+
+const sanitizeReferencePromptEntries = (entries = [], legacy = '') => {
+  const normalizedEntries = Array.isArray(entries) ? entries : []
+  const sanitized = normalizedEntries
+    .map((entry, index) => {
+      const body = sanitizeString(entry?.body ?? '')
+      if (!body) return null
+      const title = sanitizeString(entry?.title ?? '')
+      const id = sanitizeString(entry?.id ?? '') || generateReferencePromptId(index)
+      return {
+        id,
+        title: title || `参考プロンプト${index + 1}`,
+        body,
+      }
+    })
+    .filter(Boolean)
+
+  if (sanitized.length === 0) {
+    const legacyText = sanitizeString(legacy)
+    if (legacyText) {
+      sanitized.push({
+        id: generateReferencePromptId(),
+        title: '参考プロンプト',
+        body: legacyText,
+      })
+    }
+  }
+
+  return sanitized.slice(0, MAX_REFERENCE_PROMPTS)
+}
+
 const generateUserId = () => `usr_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
 const normalizeEmail = (value) => sanitizeString(value).toLowerCase()
 
@@ -121,19 +157,30 @@ const sanitizeAdminProfile = (admin = {}, fallback = DEFAULT_USER_PROFILE.admin)
   password: sanitizeString(admin?.password ?? fallback?.password ?? ''),
 })
 
-const sanitizeUserProfile = (profile = {}, fallback = DEFAULT_USER_PROFILE) => ({
-  storeName: sanitizeString(profile?.storeName ?? fallback?.storeName ?? ''),
-  storeKana: sanitizeString(profile?.storeKana ?? fallback?.storeKana ?? ''),
-  industry: sanitizeString(profile?.industry ?? fallback?.industry ?? ''),
-  customers: sanitizeString(profile?.customers ?? fallback?.customers ?? ''),
-  strengths: sanitizeString(profile?.strengths ?? fallback?.strengths ?? ''),
-  keywords: sanitizeStringArray(profile?.keywords ?? fallback?.keywords ?? []),
-  excludeWords: sanitizeStringArray(profile?.excludeWords ?? fallback?.excludeWords ?? []),
-  nearStation: sanitizeBooleanFlag(profile?.nearStation, fallback?.nearStation ?? false),
-  referencePrompt: sanitizeString(profile?.referencePrompt ?? fallback?.referencePrompt ?? ''),
-  userId: sanitizeString(profile?.userId ?? fallback?.userId ?? ''),
-  admin: sanitizeAdminProfile(profile?.admin, fallback?.admin),
-})
+const sanitizeUserProfile = (profile = {}, fallback = DEFAULT_USER_PROFILE) => {
+  const referencePrompts = sanitizeReferencePromptEntries(
+    profile?.referencePrompts ?? fallback?.referencePrompts ?? [],
+    profile?.referencePrompt ?? fallback?.referencePrompt ?? '',
+  )
+  const primaryReferencePrompt =
+    referencePrompts[0]?.body ??
+    sanitizeString(profile?.referencePrompt ?? fallback?.referencePrompt ?? '')
+
+  return {
+    storeName: sanitizeString(profile?.storeName ?? fallback?.storeName ?? ''),
+    storeKana: sanitizeString(profile?.storeKana ?? fallback?.storeKana ?? ''),
+    industry: sanitizeString(profile?.industry ?? fallback?.industry ?? ''),
+    customers: sanitizeString(profile?.customers ?? fallback?.customers ?? ''),
+    strengths: sanitizeString(profile?.strengths ?? fallback?.strengths ?? ''),
+    keywords: sanitizeStringArray(profile?.keywords ?? fallback?.keywords ?? []),
+    excludeWords: sanitizeStringArray(profile?.excludeWords ?? fallback?.excludeWords ?? []),
+    nearStation: sanitizeBooleanFlag(profile?.nearStation, fallback?.nearStation ?? false),
+    referencePrompts,
+    referencePrompt: primaryReferencePrompt,
+    userId: sanitizeString(profile?.userId ?? fallback?.userId ?? ''),
+    admin: sanitizeAdminProfile(profile?.admin, fallback?.admin),
+  }
+}
 
 const sanitizeUserDataSettings = (settings = {}, fallback = DEFAULT_USER_DATA_SETTINGS) => ({
   spreadsheetUrl: sanitizeString(settings?.spreadsheetUrl ?? fallback?.spreadsheetUrl ?? ''),

@@ -302,11 +302,13 @@ body {
 
 .form2__badge {
   font-size: 0.78rem;
-  padding: 0.2rem 0.9rem;
+  padding: 0.25rem 0.95rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--accent-strong);
-  letter-spacing: 0.08em;
+  background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #030308;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  box-shadow: 0 12px 24px rgba(74, 213, 255, 0.25);
 }
 
 .form2__question-instructions {

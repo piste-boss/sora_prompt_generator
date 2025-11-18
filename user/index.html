@@ -110,16 +110,24 @@
             </section>
           </section>
           <section class="admin__panel" data-tab-panel="reference-prompt">
-            <section class="admin__card">
-              <div class="admin__fields admin__fields--single">
-                <label class="admin__field">
-                  <span class="admin__field-label">参考プロンプト</span>
-                  <textarea
-                    name="referencePrompt"
-                    rows="6"
-                    placeholder="例：AIに学習させる参考プロンプトを入力"
-                  ></textarea>
-                </label>
+            <section class="admin__card admin__card--reference">
+              <div class="reference-prompts" data-role="reference-prompts">
+                <div class="reference-prompts__header">
+                  <div class="reference-prompts__title">
+                    <h2>参考プロンプト</h2>
+                    <p class="reference-prompts__hint">
+                      最大5件まで保存できます。タイトルをクリックして内容を確認・編集できます。
+                    </p>
+                  </div>
+                  <button type="button" class="reference-prompts__add" data-role="reference-add">
+                    ＋ 追加
+                  </button>
+                </div>
+                <p class="reference-prompts__count" data-role="reference-count">0 / 5</p>
+                <ul class="reference-prompts__list" data-role="reference-list"></ul>
+                <p class="reference-prompts__empty" data-role="reference-empty">
+                  保存された参考プロンプトはありません。
+                </p>
               </div>
             </section>
           </section>
@@ -129,6 +137,41 @@
         </form>
         <p class="admin__status" data-role="status"></p>
       </main>
+    </div>
+    <div class="reference-modal" data-role="reference-modal" aria-hidden="true">
+      <div class="reference-modal__overlay" data-role="reference-modal-overlay"></div>
+      <div class="reference-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="reference-modal-title">
+        <header class="reference-modal__header">
+          <div>
+            <p class="reference-modal__badge">参考プロンプトを編集</p>
+            <h2 id="reference-modal-title">参考プロンプト</h2>
+          </div>
+          <button type="button" class="reference-modal__close" data-role="reference-modal-close" aria-label="閉じる">
+            ✕
+          </button>
+        </header>
+        <div class="reference-modal__content">
+          <label class="reference-modal__field">
+            <span>タイトル</span>
+            <input type="text" data-role="reference-modal-title-input" placeholder="例：基本テンプレート" />
+          </label>
+          <label class="reference-modal__field">
+            <span>プロンプト本文</span>
+            <textarea
+              rows="8"
+              data-role="reference-modal-body-input"
+              placeholder="AIに渡すプロンプト本文を入力"
+            ></textarea>
+          </label>
+        </div>
+        <div class="reference-modal__actions">
+          <button type="button" class="reference-modal__delete" data-role="reference-modal-delete">削除</button>
+          <div class="reference-modal__actions-right">
+            <button type="button" class="reference-modal__cancel" data-role="reference-modal-cancel">キャンセル</button>
+            <button type="button" class="reference-modal__save" data-role="reference-modal-save">保存</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="module" src="../src/admin/main.js"></script>
   </body>
