@@ -18,21 +18,6 @@ const DEFAULT_PROMPTS = {
   page3: { gasUrl: '', prompt: '' },
 }
 
-const DEFAULT_ROUTER_DESCRIPTIONS = {
-  beginner: {
-    highlight: '所要時間 30秒',
-    description: '5段階評価のみでひとこと生成',
-  },
-  intermediate: {
-    highlight: '所要時間 60秒',
-    description: '選択式のアンケートに答えて100文字程度の文章生成',
-  },
-  advanced: {
-    highlight: '所要時間 90秒',
-    description: 'アンケートに文章回答して200文字程度の文章生成',
-  },
-}
-
 const DEFAULT_FORM1 = {
   title: '体験の満足度を教えてください',
   description: '星評価と設問にご協力ください。内容は生成されるクチコミのトーンに反映されます。',
@@ -58,68 +43,6 @@ const DEFAULT_FORM1 = {
       options: [],
       ratingEnabled: false,
       placeholder: '例：スタッフの対応、雰囲気、味など',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-  ],
-}
-
-const DEFAULT_FORM2 = {
-  title: '体験に関するアンケートにご協力ください',
-  description: '該当する項目を選択してください。複数回答可の設問はチェックマークで選べます。',
-  questions: [
-    {
-      id: 'form2-q1',
-      title: '今回のご利用目的を教えてください',
-      required: true,
-      type: 'dropdown',
-      allowMultiple: false,
-      options: ['ビジネス', '観光', '記念日', 'その他'],
-      ratingEnabled: false,
-      placeholder: '',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-    {
-      id: 'form2-q2',
-      title: '特に満足したポイントを教えてください',
-      required: false,
-      type: 'checkbox',
-      allowMultiple: true,
-      options: ['スタッフの接客', '施設の清潔さ', 'コストパフォーマンス', '立地アクセス'],
-      ratingEnabled: false,
-      placeholder: '',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-  ],
-}
-
-const DEFAULT_FORM3 = {
-  title: '詳細アンケートにご協力ください',
-  description: '選択式と自由入力の設問で体験を詳しく共有してください。',
-  questions: [
-    {
-      id: 'form3-q1',
-      title: '担当スタッフの対応はいかがでしたか',
-      required: true,
-      type: 'rating',
-      allowMultiple: false,
-      options: [],
-      ratingEnabled: false,
-      placeholder: '',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-    {
-      id: 'form3-q2',
-      title: '特に印象に残ったポイントを教えてください',
-      required: false,
-      type: 'text',
-      allowMultiple: false,
-      options: [],
-      ratingEnabled: false,
-      placeholder: '例：雰囲気、メニュー、スタッフなど',
       ratingStyle: 'stars',
       includeInReview: true,
     },
@@ -191,24 +114,6 @@ const sanitizeStringArray = (value) => {
 
 const generateUserId = () => `usr_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
 const normalizeEmail = (value) => sanitizeString(value).toLowerCase()
-
-const sanitizeRouterDescriptionEntry = (entry = {}, fallback = {}) => ({
-  highlight: sanitizeString(entry?.highlight ?? fallback?.highlight ?? ''),
-  description: sanitizeString(entry?.description ?? fallback?.description ?? ''),
-})
-
-const mergeRouterDescriptions = (
-  incoming = {},
-  fallback = DEFAULT_ROUTER_DESCRIPTIONS,
-) =>
-  Object.keys(DEFAULT_ROUTER_DESCRIPTIONS).reduce((acc, key) => {
-    const incomingEntry = Object.prototype.hasOwnProperty.call(incoming || {}, key)
-      ? incoming[key]
-      : undefined
-    const fallbackEntry = fallback?.[key] || DEFAULT_ROUTER_DESCRIPTIONS[key]
-    acc[key] = sanitizeRouterDescriptionEntry(incomingEntry, fallbackEntry)
-    return acc
-  }, {})
 
 const sanitizeAdminProfile = (admin = {}, fallback = DEFAULT_USER_PROFILE.admin) => ({
   name: sanitizeString(admin?.name ?? fallback?.name ?? ''),
@@ -321,13 +226,10 @@ const DEFAULT_CONFIG = {
     logoDataUrl: '',
     headerImageDataUrl: '',
   },
-  routerDescriptions: DEFAULT_ROUTER_DESCRIPTIONS,
   surveyResults: DEFAULT_SURVEY_RESULTS,
   userProfile: DEFAULT_USER_PROFILE,
   userDataSettings: DEFAULT_USER_DATA_SETTINGS,
   form1: DEFAULT_FORM1,
-  form2: DEFAULT_FORM2,
-  form3: DEFAULT_FORM3,
   updatedAt: null,
 }
 
@@ -346,18 +248,17 @@ const jsonResponse = (statusCode, payload = {}) => ({
   body: JSON.stringify(payload),
 })
 
-const toClientConfig = (config) => ({
-  ...config,
-  routerDescriptions: mergeRouterDescriptions(
-    config.routerDescriptions,
-    DEFAULT_ROUTER_DESCRIPTIONS,
-  ),
-  aiSettings: {
-    ...config.aiSettings,
-    geminiApiKey: config.aiSettings?.geminiApiKey ? '******' : '',
-    hasGeminiApiKey: Boolean(config.aiSettings?.geminiApiKey),
-  },
-})
+const toClientConfig = (config) => {
+  const { routerDescriptions: _unused, ...rest } = config || {}
+  return {
+    ...rest,
+    aiSettings: {
+      ...rest.aiSettings,
+      geminiApiKey: rest.aiSettings?.geminiApiKey ? '******' : '',
+      hasGeminiApiKey: Boolean(rest.aiSettings?.geminiApiKey),
+    },
+  }
+}
 
 const mergePrompts = (incoming = {}, fallback = DEFAULT_PROMPTS) =>
   Object.entries(DEFAULT_PROMPTS).reduce((acc, [key, defaults]) => {
@@ -408,10 +309,6 @@ const mergeWithDefault = (config = {}, fallback = DEFAULT_CONFIG) => {
       config.branding?.headerImageDataUrl ?? fallback.branding?.headerImageDataUrl,
     ),
   }
-  const mergedRouterDescriptions = mergeRouterDescriptions(
-    config.routerDescriptions,
-    fallback.routerDescriptions ?? DEFAULT_ROUTER_DESCRIPTIONS,
-  )
   const mergedSurveyResults = {
     spreadsheetUrl: sanitizeString(
       config.surveyResults?.spreadsheetUrl ??
@@ -436,12 +333,10 @@ const mergeWithDefault = (config = {}, fallback = DEFAULT_CONFIG) => {
     ),
   })
   const mergedForm1 = mergeForm('form1', DEFAULT_FORM1)
-  const mergedForm2 = mergeForm('form2', DEFAULT_FORM2)
-  const mergedForm3 = mergeForm('form3', DEFAULT_FORM3)
   const mergedUserProfile = sanitizeUserProfile(config.userProfile, fallback.userProfile)
   const mergedUserDataSettings = sanitizeUserDataSettings(config.userDataSettings, fallback.userDataSettings)
 
-  return {
+  const mergedConfig = {
     ...DEFAULT_CONFIG,
     ...fallback,
     labels: mergedLabels,
@@ -449,15 +344,16 @@ const mergeWithDefault = (config = {}, fallback = DEFAULT_CONFIG) => {
     aiSettings: mergedAiSettings,
     prompts: mergedPrompts,
     branding: mergedBranding,
-    routerDescriptions: mergedRouterDescriptions,
     surveyResults: mergedSurveyResults,
     userProfile: mergedUserProfile,
     userDataSettings: mergedUserDataSettings,
     form1: mergedForm1,
-    form2: mergedForm2,
-    form3: mergedForm3,
     updatedAt: config.updatedAt || fallback.updatedAt || DEFAULT_CONFIG.updatedAt,
   }
+
+  delete mergedConfig.routerDescriptions
+
+  return mergedConfig
 }
 
 export const handler = async (event, context) => {

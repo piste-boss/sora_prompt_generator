@@ -32,66 +32,6 @@ const DEFAULT_FORMS = {
       },
     ],
   },
-  form2: {
-    title: '体験に関するアンケートにご協力ください',
-    description: '該当する項目を選択してください。複数回答可の設問はチェックマークで選べます。',
-    questions: [
-      {
-        id: 'form2-q1',
-        title: '今回のご利用目的を教えてください',
-        required: true,
-        type: 'dropdown',
-        allowMultiple: false,
-        options: ['ビジネス', '観光', '記念日', 'その他'],
-        ratingEnabled: false,
-        placeholder: '',
-        ratingStyle: 'stars',
-        includeInReview: true,
-      },
-      {
-        id: 'form2-q2',
-        title: '特に満足したポイントを教えてください',
-        required: false,
-        type: 'checkbox',
-        allowMultiple: true,
-        options: ['スタッフの接客', '施設の清潔さ', 'コストパフォーマンス', '立地アクセス'],
-        ratingEnabled: false,
-        placeholder: '',
-        ratingStyle: 'stars',
-        includeInReview: true,
-      },
-    ],
-  },
-  form3: {
-    title: '詳細アンケートにご協力ください',
-    description: '選択式と自由入力で体験の詳細をお聞きします。わかる範囲でお答えください。',
-    questions: [
-      {
-        id: 'form3-q1',
-        title: '担当スタッフの対応はいかがでしたか',
-        required: true,
-        type: 'rating',
-        allowMultiple: false,
-        options: [],
-        ratingEnabled: false,
-        placeholder: '',
-        ratingStyle: 'stars',
-        includeInReview: true,
-      },
-      {
-        id: 'form3-q2',
-        title: '特に印象に残ったポイントを教えてください',
-        required: false,
-        type: 'text',
-        allowMultiple: false,
-        options: [],
-        ratingEnabled: false,
-        placeholder: '例：雰囲気、メニュー、スタッフなど',
-        ratingStyle: 'stars',
-        includeInReview: true,
-      },
-    ],
-  },
 }
 
 const RATING_SCALE = [1, 2, 3, 4, 5]
@@ -117,8 +57,8 @@ const markAppReady = (() => {
   }
 })()
 
-const FORM_KEY = app.dataset.formKey || 'form2'
-const DEFAULT_FORM = DEFAULT_FORMS[FORM_KEY] || DEFAULT_FORMS.form2
+const FORM_KEY = app.dataset.formKey || 'form1'
+const DEFAULT_FORM = DEFAULT_FORMS[FORM_KEY] || DEFAULT_FORMS.form1
 
 const titleEl = app.querySelector('[data-role="title"]')
 const leadEl = app.querySelector('[data-role="lead"]')
@@ -252,7 +192,7 @@ const normalizeQuestions = (questions = []) => {
       }
       const normalizedOptions = requiresOptions ? options : []
       return {
-        id: typeof question.id === 'string' && question.id.trim() ? question.id : `form2-q-${index + 1}`,
+        id: typeof question.id === 'string' && question.id.trim() ? question.id : `form1-q-${index + 1}`,
         title: typeof question.title === 'string' && question.title.trim() ? question.title : `設問${index + 1}`,
         required: Boolean(question.required),
         type,

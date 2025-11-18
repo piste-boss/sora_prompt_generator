@@ -155,11 +155,6 @@ let labels = {
   ...DEFAULT_LABELS,
   ...(cachedConfig?.labels ?? {}),
 }
-let routerDescriptions = {
-  ...DEFAULT_ROUTER_DESCRIPTIONS,
-  ...(cachedConfig?.routerDescriptions ?? {}),
-}
-
 const setStatus = (message, type = 'info') => {
   if (!statusEl) {
     return
@@ -187,18 +182,16 @@ const applyLabels = () => {
 const applyRouterDescriptions = () => {
   buttons.forEach((button) => {
     const tierKey = button.dataset.tier
-    const entry =
-      routerDescriptions[tierKey] || DEFAULT_ROUTER_DESCRIPTIONS[tierKey] || { highlight: '', description: '' }
-    const fallback = DEFAULT_ROUTER_DESCRIPTIONS[tierKey] || { highlight: '', description: '' }
+    const entry = DEFAULT_ROUTER_DESCRIPTIONS[tierKey] || { highlight: '', description: '' }
     const highlightEl = button.querySelector('[data-role="button-meta-highlight"]')
     const descriptionEl = button.querySelector('[data-role="button-meta-description"]')
     if (highlightEl) {
-      const text = entry.highlight ?? fallback.highlight ?? ''
+      const text = entry.highlight ?? ''
       highlightEl.textContent = text
       highlightEl.toggleAttribute('hidden', !text)
     }
     if (descriptionEl) {
-      const text = entry.description ?? fallback.description ?? ''
+      const text = entry.description ?? ''
       descriptionEl.textContent = text
       descriptionEl.toggleAttribute('hidden', !text)
     }
@@ -264,10 +257,6 @@ const resetUIState = () => {
     ...DEFAULT_LABELS,
     ...(latestCached?.labels ?? {}),
   }
-  routerDescriptions = {
-    ...DEFAULT_ROUTER_DESCRIPTIONS,
-    ...(latestCached?.routerDescriptions ?? {}),
-  }
   applyBrandingLogo(latestCached?.branding)
   applyLabels()
   applyRouterDescriptions()
@@ -286,16 +275,7 @@ const loadConfig = async () => {
       writeCachedConfig(payload)
       applyBrandingLogo(payload.branding)
     }
-    if (payload?.routerDescriptions) {
-      routerDescriptions = {
-        ...DEFAULT_ROUTER_DESCRIPTIONS,
-        ...payload.routerDescriptions,
-      }
-      applyRouterDescriptions()
-    }
-    if (!payload?.routerDescriptions) {
-      applyRouterDescriptions()
-    }
+    applyRouterDescriptions()
     setStatus('')
   } catch (error) {
     console.warn(error)
@@ -305,10 +285,6 @@ const loadConfig = async () => {
       ...(fallbackConfig?.labels ?? {}),
     }
     applyLabels()
-    routerDescriptions = {
-      ...DEFAULT_ROUTER_DESCRIPTIONS,
-      ...(fallbackConfig?.routerDescriptions ?? {}),
-    }
     applyRouterDescriptions()
     applyBrandingLogo(fallbackConfig?.branding)
     setStatus(error.message, 'warn')
@@ -327,10 +303,6 @@ window.addEventListener('pageshow', (event) => {
       ...(latestCached?.labels ?? {}),
     }
     applyLabels()
-    routerDescriptions = {
-      ...DEFAULT_ROUTER_DESCRIPTIONS,
-      ...(latestCached?.routerDescriptions ?? {}),
-    }
     applyRouterDescriptions()
     applyBrandingLogo(latestCached?.branding)
     resetUIState()

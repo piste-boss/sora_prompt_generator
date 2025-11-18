@@ -4,21 +4,6 @@ const DEFAULT_LABELS = {
   advanced: '上級',
 }
 
-const DEFAULT_ROUTER_DESCRIPTIONS = {
-  beginner: {
-    highlight: '所要時間 30秒',
-    description: '5段階評価のみでひとこと生成',
-  },
-  intermediate: {
-    highlight: '所要時間 60秒',
-    description: '選択式のアンケートに答えて100文字程度の文章生成',
-  },
-  advanced: {
-    highlight: '所要時間 90秒',
-    description: 'アンケートに文章回答して200文字程度の文章生成',
-  },
-}
-
 const DEFAULT_FAVICON_PATH = '/vite.svg'
 const MAX_FAVICON_SIZE = 1024 * 1024 // 1MBまで
 const MAX_HEADER_IMAGE_SIZE = 2 * 1024 * 1024 // 2MBまで
@@ -114,72 +99,8 @@ const DEFAULT_FORM1 = {
   ],
 }
 
-const DEFAULT_FORM2 = {
-  title: '体験に関するアンケートにご協力ください',
-  description: '該当する項目を選択してください。複数回答可の設問はチェックマークで選べます。',
-  questions: [
-    {
-      id: 'form2-q1',
-      title: '今回のご利用目的を教えてください',
-      required: true,
-      type: 'dropdown',
-      allowMultiple: false,
-      options: ['ビジネス', '観光', '記念日', 'その他'],
-      ratingEnabled: false,
-      placeholder: '',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-    {
-      id: 'form2-q2',
-      title: '特に満足したポイントを教えてください',
-      required: false,
-      type: 'checkbox',
-      allowMultiple: true,
-      options: ['スタッフの接客', '施設の清潔さ', 'コストパフォーマンス', '立地アクセス'],
-      ratingEnabled: false,
-      placeholder: '',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-  ],
-}
-
-const DEFAULT_FORM3 = {
-  title: '詳細アンケートにご協力ください',
-  description: '選択式と自由入力で体験を詳しくお聞きします。わかる範囲でご回答ください。',
-  questions: [
-    {
-      id: 'form3-q1',
-      title: '担当スタッフの対応はいかがでしたか',
-      required: true,
-      type: 'rating',
-      allowMultiple: false,
-      options: [],
-      ratingEnabled: false,
-      placeholder: '',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-    {
-      id: 'form3-q2',
-      title: '特に印象に残ったポイントを教えてください',
-      required: false,
-      type: 'text',
-      allowMultiple: false,
-      options: [],
-      ratingEnabled: false,
-      placeholder: '例：店舗の雰囲気、サービス内容など',
-      ratingStyle: 'stars',
-      includeInReview: true,
-    },
-  ],
-}
-
 const SURVEY_FORM_DEFAULTS = {
   form1: DEFAULT_FORM1,
-  form2: DEFAULT_FORM2,
-  form3: DEFAULT_FORM3,
 }
 
 const QUESTION_TYPES = [
@@ -216,14 +137,6 @@ const sanitizeOptionsList = (value) =>
     .map((line) => line.trim())
     .filter(Boolean)
 
-const getRouterDescriptionDefaults = (key) =>
-  DEFAULT_ROUTER_DESCRIPTIONS[key] || { highlight: '', description: '' }
-
-const normalizeRouterDescriptionEntry = (entry, fallback = { highlight: '', description: '' }) => ({
-  highlight: typeof entry?.highlight === 'string' ? entry.highlight : fallback.highlight || '',
-  description: typeof entry?.description === 'string' ? entry.description : fallback.description || '',
-})
-
 const app = document.querySelector('#admin-app')
 if (!app) {
   throw new Error('#admin-app が見つかりません。')
@@ -247,14 +160,6 @@ if (!form || !statusEl) {
 
 const tabButtons = Array.from(app.querySelectorAll('[data-tab-target]'))
 const tabPanels = Array.from(app.querySelectorAll('[data-tab-panel]'))
-
-const routerDescriptionFields = TIERS.reduce((acc, { key }) => {
-  acc[key] = {
-    highlight: form.elements[`${key}Highlight`],
-    description: form.elements[`${key}Description`],
-  }
-  return acc
-}, {})
 
 const surveyResultsFields = {
   spreadsheetUrl: form.elements.surveySpreadsheetUrl,
@@ -314,40 +219,6 @@ const getStoredUserProfileValue = (key) =>
 
 const getStoredUserDataSetting = (key) =>
   typeof loadedConfig?.userDataSettings?.[key] === 'string' ? loadedConfig.userDataSettings[key] : ''
-
-const getRouterDescriptionsFromConfig = (config = {}) => {
-  const source = config.routerDescriptions || {}
-  return TIERS.reduce((acc, { key }) => {
-    acc[key] = normalizeRouterDescriptionEntry(
-      source[key],
-      getRouterDescriptionDefaults(key),
-    )
-    return acc
-  }, {})
-}
-
-const getRouterDescriptionsPayload = () => {
-  const existing = getRouterDescriptionsFromConfig(
-    loadedConfig || { routerDescriptions: DEFAULT_ROUTER_DESCRIPTIONS },
-  )
-  return TIERS.reduce((acc, { key }) => {
-    const fields = routerDescriptionFields[key] || {}
-    const fallback = existing[key] || getRouterDescriptionDefaults(key)
-    const highlightValue =
-      typeof fields.highlight?.value === 'string'
-        ? fields.highlight.value.trim()
-        : fallback.highlight
-    const descriptionValue =
-      typeof fields.description?.value === 'string'
-        ? fields.description.value.trim()
-        : fallback.description
-    acc[key] = {
-      highlight: highlightValue,
-      description: descriptionValue,
-    }
-    return acc
-  }, {})
-}
 
 const cloneQuestion = (question) => ({
   ...question,
@@ -1015,26 +886,6 @@ const surveyFormConfigs = [
     addButton: app.querySelector('[data-role="form1-add-question"]'),
     defaults: DEFAULT_FORM1,
   },
-  {
-    key: 'form2',
-    fields: {
-      title: form.elements.form2Title,
-      lead: form.elements.form2Lead,
-    },
-    questionListEl: app.querySelector('[data-role="form2-question-list"]'),
-    addButton: app.querySelector('[data-role="form2-add-question"]'),
-    defaults: DEFAULT_FORM2,
-  },
-  {
-    key: 'form3',
-    fields: {
-      title: form.elements.form3Title,
-      lead: form.elements.form3Lead,
-    },
-    questionListEl: app.querySelector('[data-role="form3-question-list"]'),
-    addButton: app.querySelector('[data-role="form3-add-question"]'),
-    defaults: DEFAULT_FORM3,
-  },
 ]
 
 const surveyFormManagers = surveyFormConfigs.reduce((acc, config) => {
@@ -1375,18 +1226,6 @@ function populateForm(config) {
     }
   })
 
-  const routerDescriptions = getRouterDescriptionsFromConfig(config)
-  TIERS.forEach(({ key }) => {
-    const fields = routerDescriptionFields[key]
-    const descriptionConfig = routerDescriptions[key] || getRouterDescriptionDefaults(key)
-    if (fields?.highlight) {
-      fields.highlight.value = descriptionConfig.highlight
-    }
-    if (fields?.description) {
-      fields.description.value = descriptionConfig.description
-    }
-  })
-
   const ai = config.aiSettings || {}
   if (aiFields.geminiApiKey) {
     if (ai.hasGeminiApiKey) {
@@ -1442,7 +1281,7 @@ function populateForm(config) {
   surveyFormConfigs.forEach(({ key }) => {
     const manager = surveyFormManagers[key]
     if (!manager) return
-    const defaults = SURVEY_FORM_DEFAULTS[key] || DEFAULT_FORM2
+    const defaults = SURVEY_FORM_DEFAULTS[key] || DEFAULT_FORM1
     const formConfig = config[key] || defaults
     manager.load(formConfig)
   })
@@ -1506,7 +1345,6 @@ form.addEventListener('submit', async (event) => {
     aiSettings: { ...(loadedConfig?.aiSettings || {}) },
     prompts: {},
     branding: { ...(loadedConfig?.branding || {}) },
-    routerDescriptions: { ...(loadedConfig?.routerDescriptions || {}) },
     surveyResults: {
       ...DEFAULT_SURVEY_RESULTS,
       ...(loadedConfig?.surveyResults || {}),
@@ -1542,8 +1380,6 @@ form.addEventListener('submit', async (event) => {
       payload.tiers[key] = { links: [] }
     }
   })
-
-  payload.routerDescriptions = getRouterDescriptionsPayload()
 
   const aiSettings = { ...(payload.aiSettings || {}) }
   aiSettings.geminiApiKey = ''
@@ -1707,7 +1543,7 @@ form.addEventListener('submit', async (event) => {
         if (loadedConfig?.[key]) {
           return JSON.parse(JSON.stringify(loadedConfig[key]))
         }
-        return SURVEY_FORM_DEFAULTS[key] || DEFAULT_FORM2
+        return SURVEY_FORM_DEFAULTS[key] || DEFAULT_FORM1
       }
       const fallbackConfig = {
         labels: payload.labels,
@@ -1723,8 +1559,6 @@ form.addEventListener('submit', async (event) => {
           ? payload.userDataSettings
           : existingUserDataSettings,
         form1: fallbackFormConfig('form1'),
-        form2: fallbackFormConfig('form2'),
-        form3: fallbackFormConfig('form3'),
         userProfile: payload.userProfile,
       }
       loadedConfig = fallbackConfig

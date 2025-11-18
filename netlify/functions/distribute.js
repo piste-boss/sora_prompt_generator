@@ -12,21 +12,6 @@ const DEFAULT_PROMPTS = {
   page3: { gasUrl: '', prompt: '' },
 }
 
-const DEFAULT_ROUTER_DESCRIPTIONS = {
-  beginner: {
-    highlight: '所要時間 30秒',
-    description: '5段階評価のみでひとこと生成',
-  },
-  intermediate: {
-    highlight: '所要時間 60秒',
-    description: '選択式のアンケートに答えて100文字程度の文章生成',
-  },
-  advanced: {
-    highlight: '所要時間 90秒',
-    description: 'アンケートに文章回答して200文字程度の文章生成',
-  },
-}
-
 const sanitizeString = (value) => (typeof value === 'string' ? value.trim() : '')
 
 const DEFAULT_CONFIG = {
@@ -52,7 +37,6 @@ const DEFAULT_CONFIG = {
     faviconDataUrl: '',
     logoDataUrl: '',
   },
-  routerDescriptions: DEFAULT_ROUTER_DESCRIPTIONS,
   updatedAt: null,
 }
 
@@ -85,24 +69,6 @@ const mergePrompts = (incoming = {}, fallback = DEFAULT_PROMPTS) =>
       : sanitizeString(fallbackEntry.prompt ?? defaults.prompt)
 
     acc[key] = { gasUrl, prompt }
-    return acc
-  }, {})
-
-const mergeRouterDescriptions = (
-  incoming = {},
-  fallback = DEFAULT_ROUTER_DESCRIPTIONS,
-) =>
-  Object.keys(DEFAULT_ROUTER_DESCRIPTIONS).reduce((acc, key) => {
-    const incomingEntry = Object.prototype.hasOwnProperty.call(incoming || {}, key)
-      ? incoming[key]
-      : undefined
-    const fallbackEntry = fallback?.[key] || DEFAULT_ROUTER_DESCRIPTIONS[key]
-    acc[key] = {
-      highlight: sanitizeString(incomingEntry?.highlight ?? fallbackEntry?.highlight ?? ''),
-      description: sanitizeString(
-        incomingEntry?.description ?? fallbackEntry?.description ?? '',
-      ),
-    }
     return acc
   }, {})
 
@@ -143,7 +109,6 @@ const mergeWithDefault = (config = {}, fallback = DEFAULT_CONFIG) => {
       faviconDataUrl: sanitizeString(config.branding?.faviconDataUrl ?? fallback.branding?.faviconDataUrl),
       logoDataUrl: sanitizeString(config.branding?.logoDataUrl ?? fallback.branding?.logoDataUrl),
     },
-    routerDescriptions: mergeRouterDescriptions(config.routerDescriptions, fallback.routerDescriptions),
   }
 }
 
