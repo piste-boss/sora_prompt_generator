@@ -1,3 +1,5 @@
+import crypto from 'node:crypto'
+
 import { createStore } from './_lib/store.js'
 
 const CONFIG_KEY = 'router-config'
@@ -43,11 +45,17 @@ const getStoredConfig = async (context) => {
   return saved || {}
 }
 
+const hashPassword = (value, salt = '') => {
+  const password = typeof value === 'string' ? value : ''
+  return crypto.createHash('sha256').update(`${salt}${password}`).digest('hex')
+}
+
 const getUserDataSettings = (config = {}) => {
   const defaults = {
     spreadsheetUrl: '',
     submitGasUrl: '',
     readGasUrl: '',
+    passwordSalt: '',
   }
   return {
     ...defaults,
@@ -113,14 +121,23 @@ export const handler = async (event, context) => {
     return jsonResponse(400, { message: '店舗情報読み取りGAS URLが設定されていません。' })
   }
 
-  const requestBody = JSON.stringify({
-    email,
-    password,
-    userId,
-    sheetName,
-    spreadsheetId,
-    spreadsheetUrl: storedSpreadsheetUrl,
-  })
+  const passwordSalt = sanitizeString(overrideMetadata.passwordSalt || settings.passwordSalt)
+  const hashedPassword = hashPassword(password, passwordSalt)
+
+  const requestBodyPayload = {
+    profile: {
+      email,
+      password: hashedPassword,
+    },
+    metadata: {
+      sheetName,
+      spreadsheetId,
+      spreadsheetUrl: storedSpreadsheetUrl,
+      userId,
+    },
+  }
+
+  const requestBody = JSON.stringify(requestBodyPayload)
 
   try {
     const response = await fetch(readGasUrl, {
