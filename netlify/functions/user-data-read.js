@@ -122,9 +122,25 @@ export const handler = async (event, context) => {
   }
 
   const passwordSalt = sanitizeString(overrideMetadata.passwordSalt || settings.passwordSalt)
+  const plainPassword = password
   const hashedPassword = hashPassword(password, passwordSalt)
 
+  const legacyRequestFields = {
+    email,
+    password: hashedPassword,
+    userId,
+    sheetName,
+    spreadsheetId,
+    spreadsheetUrl: storedSpreadsheetUrl,
+  }
+
   const requestBodyPayload = {
+    ...legacyRequestFields,
+    hashedPassword,
+    passwordHash: hashedPassword,
+    passwordPlain: plainPassword,
+    plainPassword,
+    legacyPassword: plainPassword,
     profile: {
       email,
       password: hashedPassword,
@@ -134,6 +150,9 @@ export const handler = async (event, context) => {
       spreadsheetId,
       spreadsheetUrl: storedSpreadsheetUrl,
       userId,
+      passwordSalt,
+      passwordPlain: plainPassword,
+      passPlain: plainPassword,
     },
   }
 

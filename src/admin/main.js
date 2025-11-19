@@ -643,8 +643,12 @@ const setUserProfileValues = (profile = {}) => {
   const adminProfile = profile.admin || DEFAULT_USER_PROFILE.admin
   assign(userProfileFields.admin?.name, adminProfile.name)
   assign(userProfileFields.admin?.email, adminProfile.email)
-  assign(userProfileFields.admin?.password, adminProfile.password)
-  assign(userProfileFields.admin?.passwordConfirm, adminProfile.password)
+  if (userProfileFields.admin?.password) {
+    userProfileFields.admin.password.value = ''
+  }
+  if (userProfileFields.admin?.passwordConfirm) {
+    userProfileFields.admin.passwordConfirm.value = ''
+  }
   if (userProfileFields.admin?.toggle) {
     userProfileFields.admin.toggle.checked = false
   }
