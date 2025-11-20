@@ -156,14 +156,6 @@ body {
   z-index: 1;
 }
 
-.form2 .form2__header {
-  z-index: 5;
-}
-
-.form2 .form2__menu {
-  z-index: 6;
-}
-
 .form2__brand {
   align-self: flex-start;
   padding: 0.35rem 1.2rem;
@@ -217,104 +209,8 @@ body {
   display: none !important;
 }
 
-.form2__menu {
-  align-self: flex-end;
-  position: relative;
-  z-index: 6;
-}
-
-.form2__menu-trigger {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 1.35rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form2__menu-trigger:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.32);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(2, 5, 19, 0.35);
-}
-
-.form2__menu-trigger:active {
-  transform: translateY(0);
-}
-
-.form2__menu-panel {
-  position: fixed;
-  min-width: 220px;
-  border-radius: 14px;
-  background: rgba(6, 12, 30, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 24px 48px rgba(2, 5, 19, 0.5);
-  padding: 0.85rem 1rem;
-  backdrop-filter: blur(10px);
-  opacity: 0;
-  transform: translateY(-4px);
-  pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 5000;
-}
-
-.form2__menu.is-open .form2__menu-panel {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.form2__menu-title {
-  margin: 0 0 0.4rem;
-  font-size: 0.95rem;
-  color: #cdd7f7;
-  font-weight: 700;
-}
-
-.form2__menu-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  color: #eaf0ff;
-  font-weight: 600;
-}
-
 .form2__brand [hidden] {
   display: none !important;
-}
-
-.form2__menu-button {
-  align-self: flex-start;
-  margin-left: auto;
-  padding: 0.45rem 1.2rem;
-  border-radius: 999px;
-  background: rgba(125, 91, 255, 0.15);
-  border: 1px solid rgba(125, 91, 255, 0.35);
-  color: var(--text-strong);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
-
-.form2__menu-button:hover,
-.form2__menu-button:focus-visible {
-  background: rgba(125, 91, 255, 0.35);
-  border-color: rgba(125, 91, 255, 0.55);
-  transform: translateY(-1px);
-}
-
-.form2__menu-button:active {
-  transform: translateY(0);
 }
 
 .form2__title {
