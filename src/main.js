@@ -77,12 +77,29 @@ const markWelcomePopupShown = () => {
   }
 }
 
-const getProfileDisplayName = (profile) => {
-  if (!profile || typeof profile !== 'object') return ''
-  const adminName = typeof profile.admin?.name === 'string' ? profile.admin.name.trim() : ''
-  if (adminName) return adminName
-  const fallbackName = typeof profile.name === 'string' ? profile.name.trim() : ''
-  return fallbackName
+const getWelcomeDisplayName = (payload) => {
+  if (!payload || typeof payload !== 'object') return ''
+  if (payload.credentials && typeof payload.credentials.displayName === 'string') {
+    const trimmed = payload.credentials.displayName.trim()
+    if (trimmed) return trimmed
+  }
+  const profile = getProfilePayload(payload)
+  const candidates = [
+    profile?.profileAdminName,
+    profile?.adminName,
+    profile?.admin?.name,
+    profile?.name,
+    profile?.storeName,
+    profile?.storeKana,
+  ]
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim()
+    }
+  }
+  const fallbackEmail =
+    typeof payload.credentials?.email === 'string' ? payload.credentials.email.trim() : ''
+  return fallbackEmail
 }
 
 const createElementWithClass = (tag, className, text) => {
@@ -141,8 +158,7 @@ const maybeShowWelcomePopup = () => {
   }
   const payload = readSessionProfilePrefill()
   if (!payload) return
-  const profile = getProfilePayload(payload)
-  const name = getProfileDisplayName(profile)
+  const name = getWelcomeDisplayName(payload)
   if (!name) return
   showWelcomePopup(name)
   markWelcomePopupShown()

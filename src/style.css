@@ -2,6 +2,8 @@
   --font-base: 'Zen Kaku Gothic New', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', system-ui,
     -apple-system, BlinkMacSystemFont, sans-serif;
   --font-accent: 'Outfit', 'Zen Kaku Gothic New', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --accent: #7d5bff;
+  --accent-strong: #4ad5ff;
   color-scheme: only light;
   font-family: var(--font-base);
   text-rendering: optimizeLegibility;
@@ -378,11 +380,11 @@ body::before {
 
 .welcome-popup__dialog {
   position: relative;
-  background: var(--card);
+  background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
   border-radius: 24px;
   padding: 2rem 2.5rem;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(244, 125, 150, 0.3);
+  box-shadow: 0 32px 60px rgba(60, 26, 97, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   text-align: center;
   width: min(360px, calc(100% - 2rem));
   z-index: 1;
@@ -393,26 +395,26 @@ body::before {
 .welcome-popup__title {
   margin: 0;
   font-size: 1.1rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .welcome-popup__name {
   margin: 0.4rem 0 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-strong);
+  color: #fff;
 }
 
 .welcome-popup__message {
   margin: 0.8rem 0 1.5rem;
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .welcome-popup__button {
   border: none;
   border-radius: 999px;
-  background: var(--brand-pink);
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
   padding: 0.7rem 2.2rem;
   font-size: 1rem;
@@ -424,7 +426,7 @@ body::before {
 
 .welcome-popup__button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(244, 125, 150, 0.3);
+  box-shadow: 0 12px 24px rgba(20, 20, 40, 0.35);
 }
 
 .welcome-popup__button:active {

@@ -35,6 +35,29 @@ const updateButtonState = () => {
   loginButton.disabled = isSubmitting || !hasEmail || !hasPassword
 }
 
+const trimIfString = (value) => (typeof value === 'string' ? value.trim() : '')
+
+const resolveProfileDisplayName = (profile, fallbackEmail = '') => {
+  if (!profile || typeof profile !== 'object') {
+    return trimIfString(fallbackEmail)
+  }
+  const candidates = [
+    profile.profileAdminName,
+    profile.adminName,
+    profile.admin?.name,
+    profile.name,
+    profile.storeName,
+    profile.storeKana,
+  ]
+  for (const candidate of candidates) {
+    const text = trimIfString(candidate)
+    if (text) {
+      return text
+    }
+  }
+  return trimIfString(fallbackEmail)
+}
+
 const storePrefillProfile = (profile, credentials) => {
   if (!profile) return
   try {
@@ -100,8 +123,9 @@ const handleLogin = async () => {
       throw new Error('一致するユーザー情報が見つかりませんでした。')
     }
 
-    storePrefillProfile(profile, { email, password })
-    setStatus('ログイン成功。ユーザー設定ページへ移動します。', 'success')
+    const displayName = resolveProfileDisplayName(profile, email)
+    storePrefillProfile(profile, { email, password, displayName })
+    setStatus('ログイン成功。', 'success')
 
     setTimeout(() => {
       window.location.assign('/')
