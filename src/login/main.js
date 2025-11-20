@@ -1,5 +1,6 @@
 const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
 const PROFILE_PREFILL_WELCOME_KEY = 'oisoya_review_prefill_welcome_shown'
+const DEV_MODE_STORAGE_KEY = 'oisoya_review_dev_mode'
 
 const app = document.querySelector('#login-app')
 if (!app) {
@@ -36,6 +37,13 @@ const updateButtonState = () => {
 }
 
 const trimIfString = (value) => (typeof value === 'string' ? value.trim() : '')
+const isDeveloperModeEnabled = () => {
+  try {
+    return window.localStorage.getItem(DEV_MODE_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 const resolveProfileDisplayName = (profile, fallbackEmail = '') => {
   if (!profile || typeof profile !== 'object') {
@@ -79,6 +87,7 @@ const handleLogin = async () => {
   if (!form || !emailInput || !passwordInput || !loginButton) return
   const email = (emailInput.value || '').trim()
   const password = (passwordInput.value || '').trim()
+  const devMode = isDeveloperModeEnabled()
   if (!email || !password) {
     setStatus('メールアドレスとパスワードを入力してください。', 'error')
     return
@@ -86,9 +95,23 @@ const handleLogin = async () => {
 
   isSubmitting = true
   updateButtonState()
-  setStatus('ログインしています…', 'info')
+  setStatus(devMode ? 'デベロッパーモードでログイン中…' : 'ログインしています…', 'info')
 
   try {
+    if (devMode) {
+      const demoProfile = {
+        profileAdminName: 'Developer Demo',
+        adminName: 'Developer Demo',
+        email,
+      }
+      storePrefillProfile(demoProfile, { email, password, displayName: 'Developer Demo' })
+      setStatus('デベロッパーモードでログインしました。', 'success')
+      setTimeout(() => {
+        window.location.assign('/')
+      }, 400)
+      return
+    }
+
     const response = await fetch('/.netlify/functions/user-data-read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

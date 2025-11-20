@@ -69,6 +69,7 @@ const DEFAULT_USER_DATA_SETTINGS = {
   readGasUrl: '',
 }
 
+const DEV_MODE_STORAGE_KEY = 'oisoya_review_dev_mode'
 const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
 const PROFILE_SHEET_NAME = 'profiles'
 
@@ -257,6 +258,9 @@ const billingButtons = {
 }
 const billingStatusEl = queryWithinApp('[data-role="billing-status"]')
 const proUnavailableMessage = 'PROプランは後日追加予定です。'
+const developerModeToggle = form?.elements.developerModeToggle
+const developerModeStatusEl = queryWithinApp('[data-role="developer-mode-status"]')
+const developerModeMessageEl = queryWithinApp('[data-role="developer-mode-message"]')
 
 const getStoredUserProfileValue = (key) =>
   typeof loadedConfig?.userProfile?.[key] === 'string' ? loadedConfig.userProfile[key] : ''
@@ -293,6 +297,43 @@ const setBillingButtonsDisabled = (disabled) => {
       button.disabled = disabled
     }
   })
+}
+
+const isDeveloperModeEnabled = () => {
+  try {
+    return window.localStorage.getItem(DEV_MODE_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+const setDeveloperModeEnabled = (enabled) => {
+  try {
+    window.localStorage.setItem(DEV_MODE_STORAGE_KEY, enabled ? '1' : '0')
+  } catch {
+    // noop
+  }
+}
+
+const updateDeveloperModeUI = () => {
+  const enabled = isDeveloperModeEnabled()
+  if (developerModeToggle) {
+    developerModeToggle.checked = enabled
+  }
+  if (developerModeStatusEl) {
+    developerModeStatusEl.textContent = enabled ? 'ON' : 'OFF'
+  }
+  if (developerModeMessageEl) {
+    if (enabled) {
+      developerModeMessageEl.textContent = '開発者モード中: ログイン認証とStripe連動をスキップします。'
+      developerModeMessageEl.dataset.type = 'warn'
+      developerModeMessageEl.removeAttribute('hidden')
+    } else {
+      developerModeMessageEl.textContent = ''
+      developerModeMessageEl.dataset.type = ''
+      developerModeMessageEl.setAttribute('hidden', '')
+    }
+  }
 }
 
 const generateReferencePromptId = () => {
@@ -1703,6 +1744,16 @@ Object.entries(billingButtons).forEach(([plan, button]) => {
   if (!button) return
   button.addEventListener('click', () => startCheckout(plan))
 })
+
+if (developerModeToggle) {
+  developerModeToggle.addEventListener('change', () => {
+    setDeveloperModeEnabled(Boolean(developerModeToggle.checked))
+    updateDeveloperModeUI()
+  })
+  updateDeveloperModeUI()
+} else {
+  updateDeveloperModeUI()
+}
 
 const profileRegistrationInputs = [
   userProfileFields.admin?.name,

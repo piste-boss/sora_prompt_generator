@@ -70,6 +70,7 @@
             <nav class="admin__tabs" aria-label="設定メニュー">
               <button type="button" class="admin__tab is-active" data-tab-target="admin-settings">ユーザー情報</button>
               <button type="button" class="admin__tab" data-tab-target="reference-prompt">参考プロンプト</button>
+              <button type="button" class="admin__tab" data-tab-target="developer">開発者</button>
             </nav>
           </div>
         </div>
@@ -155,6 +156,25 @@
                   保存された参考プロンプトはありません。
                 </p>
               </div>
+            </section>
+          </section>
+          <section class="admin__panel" data-tab-panel="developer">
+            <section class="admin__card">
+              <h2>開発者モード</h2>
+              <p class="admin__hint">ONにするとログイン認証とStripe連動を無効化し、デモ利用できます。</p>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__toggle">
+                  <span class="admin__toggle-label">開発者モード</span>
+                  <span class="admin__toggle-control">
+                    <input type="checkbox" name="developerModeToggle" class="admin__toggle-input" />
+                    <span class="admin__toggle-track">
+                      <span class="admin__toggle-thumb"></span>
+                    </span>
+                    <span class="admin__toggle-status" data-role="developer-mode-status">OFF</span>
+                  </span>
+                </label>
+              </div>
+              <p class="admin__status admin__status--inline" data-role="developer-mode-message" hidden></p>
             </section>
           </section>
           <div class="admin__floating-submit">

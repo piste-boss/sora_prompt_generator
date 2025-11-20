@@ -24,6 +24,7 @@ const DEFAULT_FAVICON_PATH = '/vite.svg'
 const CONFIG_CACHE_KEY = 'oisoya_review_config_cache'
 const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
 const PROFILE_PREFILL_WELCOME_KEY = 'oisoya_review_prefill_welcome_shown'
+const DEV_MODE_STORAGE_KEY = 'oisoya_review_dev_mode'
 
 const readCachedConfig = () => {
   try {
@@ -170,10 +171,26 @@ const getCurrentUserEmail = () => {
   return typeof raw === 'string' ? raw.trim() : ''
 }
 
+const isDeveloperModeEnabled = () => {
+  try {
+    return window.localStorage.getItem(DEV_MODE_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
 let subscriptionCache = { email: '', active: false, timestamp: 0 }
 const SUBSCRIPTION_CACHE_TTL = 30 * 1000
 
 const ensureSubscriptionActive = async () => {
+  if (isDeveloperModeEnabled()) {
+    subscriptionCache = {
+      email: '__dev__',
+      active: true,
+      timestamp: Date.now(),
+    }
+    return true
+  }
   const email = getCurrentUserEmail()
   if (!email) {
     throw new Error('ログイン情報が見つかりません。再度ログインしてください。')
