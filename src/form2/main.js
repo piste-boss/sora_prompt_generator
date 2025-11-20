@@ -281,11 +281,50 @@ const applyBrandingLogo = (branding = {}) => {
 const userSettingsLinks = document.querySelectorAll('[data-role="user-settings-link"]')
 userSettingsLinks.forEach((link) => {
   link.addEventListener('click', (event) => {
-    if (link.tagName === 'A') return
     event.preventDefault()
-    window.location.assign('/user/')
   })
 })
+
+const userMenu = app.querySelector('[data-role="user-menu"]')
+const userMenuTrigger = app.querySelector('[data-role="user-menu-trigger"]')
+const userMenuPanel = app.querySelector('[data-role="user-menu-panel"]')
+
+const closeUserMenu = () => {
+  if (!userMenuTrigger || !userMenuPanel || !userMenu) return
+  userMenuTrigger.setAttribute('aria-expanded', 'false')
+  userMenuPanel.setAttribute('aria-hidden', 'true')
+  userMenu.classList.remove('is-open')
+}
+
+const openUserMenu = () => {
+  if (!userMenuTrigger || !userMenuPanel || !userMenu) return
+  userMenuTrigger.setAttribute('aria-expanded', 'true')
+  userMenuPanel.setAttribute('aria-hidden', 'false')
+  userMenu.classList.add('is-open')
+}
+
+if (userMenu && userMenuTrigger && userMenuPanel) {
+  userMenuTrigger.addEventListener('click', () => {
+    const expanded = userMenuTrigger.getAttribute('aria-expanded') === 'true'
+    if (expanded) {
+      closeUserMenu()
+    } else {
+      openUserMenu()
+    }
+  })
+
+  document.addEventListener('click', (event) => {
+    if (!userMenu.contains(event.target)) {
+      closeUserMenu()
+    }
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeUserMenu()
+    }
+  })
+}
 
 const clearQuestionStatus = (statusNode) => {
   if (!statusNode) return
