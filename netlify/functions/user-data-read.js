@@ -47,7 +47,7 @@ const getStoredConfig = async (context) => {
 
 const hashPassword = (value, salt = '') => {
   const password = typeof value === 'string' ? value : ''
-  return crypto.createHash('sha256').update(`${salt}${password}`).digest('hex')
+  return crypto.createHash('sha256').update(`${password}${salt}`).digest('hex')
 }
 
 const getUserDataSettings = (config = {}) => {
@@ -124,6 +124,12 @@ export const handler = async (event, context) => {
   const passwordSalt = sanitizeString(overrideMetadata.passwordSalt || settings.passwordSalt)
   const plainPassword = password
   const hashedPassword = hashPassword(password, passwordSalt)
+  console.log('[user-data-read] request payload', {
+    email,
+    hashedPassword,
+    sheetName,
+    spreadsheetId,
+  })
 
   const legacyRequestFields = {
     email,
@@ -171,6 +177,14 @@ export const handler = async (event, context) => {
       responsePayload = responseText ? JSON.parse(responseText) : {}
     } catch {
       responsePayload = {}
+    }
+    if (responsePayload && responsePayload.ok === false) {
+      console.warn('[user-data-read] GAS responded with ok:false', {
+        email,
+        sheetName,
+        spreadsheetId,
+        response: responsePayload,
+      })
     }
 
     if (!response.ok) {

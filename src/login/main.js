@@ -34,13 +34,14 @@ const updateButtonState = () => {
   loginButton.disabled = isSubmitting || !hasEmail || !hasPassword
 }
 
-const storePrefillProfile = (profile) => {
+const storePrefillProfile = (profile, credentials) => {
   if (!profile) return
   try {
     window.sessionStorage.setItem(
       PROFILE_PREFILL_STORAGE_KEY,
       JSON.stringify({
         profile,
+        credentials: credentials || null,
         storedAt: new Date().toISOString(),
       }),
     )
@@ -60,7 +61,7 @@ const handleLogin = async () => {
 
   isSubmitting = true
   updateButtonState()
-  setStatus('保存済みの情報を確認しています…', 'info')
+  setStatus('ログインしています…', 'info')
 
   try {
     const response = await fetch('/.netlify/functions/user-data-read', {
@@ -97,11 +98,11 @@ const handleLogin = async () => {
       throw new Error('一致するユーザー情報が見つかりませんでした。')
     }
 
-    storePrefillProfile(profile)
-    setStatus('プロフィール情報を読み込みました。ユーザー設定ページへ移動します。', 'success')
+    storePrefillProfile(profile, { email, password })
+    setStatus('ログイン成功。ユーザー設定ページへ移動します。', 'success')
 
     setTimeout(() => {
-      window.location.assign('/user/?from=login')
+      window.location.assign('/')
     }, 800)
   } catch (error) {
     console.error('Login failed:', error)

@@ -606,8 +606,9 @@ const hasUserProfileInputs = () =>
           userProfileFields.admin.passwordConfirm)),
   )
 
-const setUserProfileValues = (profile = {}) => {
+const setUserProfileValues = (profile = {}, options = {}) => {
   if (!hasUserProfileInputs()) return
+  const credentials = options?.credentials || null
   const assign = (field, value = '') => {
     if (field) field.value = value || ''
   }
@@ -641,14 +642,15 @@ const setUserProfileValues = (profile = {}) => {
   }
 
   const adminProfile = profile.admin || DEFAULT_USER_PROFILE.admin
-  assign(userProfileFields.admin?.name, adminProfile.name)
-  assign(userProfileFields.admin?.email, adminProfile.email)
-  if (userProfileFields.admin?.password) {
-    userProfileFields.admin.password.value = ''
-  }
-  if (userProfileFields.admin?.passwordConfirm) {
-    userProfileFields.admin.passwordConfirm.value = ''
-  }
+  const resolvedAdminName = adminProfile.name || profile.name || ''
+  const resolvedAdminEmail =
+    adminProfile.email || profile.email || credentials?.email || ''
+  const resolvedAdminPassword = credentials?.password || ''
+
+  assign(userProfileFields.admin?.name, resolvedAdminName)
+  assign(userProfileFields.admin?.email, resolvedAdminEmail)
+  assign(userProfileFields.admin?.password, resolvedAdminPassword)
+  assign(userProfileFields.admin?.passwordConfirm, resolvedAdminPassword)
   if (userProfileFields.admin?.toggle) {
     userProfileFields.admin.toggle.checked = false
   }
@@ -685,8 +687,10 @@ const applyProfilePrefillFromSession = () => {
   if (!payload) return
   const profile =
     (payload && typeof payload.profile === 'object' && payload.profile) || payload
+  const credentials =
+    payload && typeof payload.credentials === 'object' ? payload.credentials : null
   if (!profile || Object.keys(profile).length === 0) return
-  setUserProfileValues(profile)
+  setUserProfileValues(profile, { credentials })
   setStatus('保存済みのプロフィールを読み込みました。', 'success')
 }
 
