@@ -70,6 +70,7 @@
             <nav class="admin__tabs" aria-label="設定メニュー">
               <button type="button" class="admin__tab is-active" data-tab-target="admin-settings">ユーザー情報</button>
               <button type="button" class="admin__tab" data-tab-target="reference-prompt">参考プロンプト</button>
+              <button type="button" class="admin__tab" data-tab-target="billing">支払い</button>
             </nav>
           </div>
         </div>
@@ -113,26 +114,6 @@
                 </button>
                 <p class="admin__hint">登録済みのメールアドレスとパスワードを入力してから押してください。</p>
               </div>
-              <section class="admin__card">
-                <h2>プラン</h2>
-                <p class="admin__hint">
-                  Stripe Checkoutで有料プランに登録します。7日間の無料トライアルが適用されます。
-                </p>
-                <div class="admin__button-group">
-                  <button type="button" class="admin__button" data-role="subscribe-basic">BASICを開始する</button>
-                  <button
-                    type="button"
-                    class="admin__button admin__button--ghost"
-                    data-role="subscribe-pro"
-                    disabled
-                    aria-disabled="true"
-                    title="後日追加予定です"
-                  >
-                    PRO（後日追加予定）
-                  </button>
-                </div>
-                <p class="admin__status admin__status--inline" data-role="billing-status"></p>
-              </section>
             </section>
           </section>
           <section class="admin__panel" data-tab-panel="reference-prompt">
@@ -155,6 +136,28 @@
                   保存された参考プロンプトはありません。
                 </p>
               </div>
+            </section>
+          </section>
+          <section class="admin__panel" data-tab-panel="billing">
+            <section class="admin__card">
+              <h2>支払い</h2>
+              <p class="admin__hint">
+                Stripe Checkoutで有料プランに登録します。7日間の無料トライアルが適用されます。
+              </p>
+              <div class="admin__button-group">
+                <button type="button" class="admin__button" data-role="subscribe-basic">BASICを開始する</button>
+                <button
+                  type="button"
+                  class="admin__button admin__button--ghost"
+                  data-role="subscribe-pro"
+                  disabled
+                  aria-disabled="true"
+                  title="後日追加予定です"
+                >
+                  PRO（後日追加予定）
+                </button>
+              </div>
+              <p class="admin__status admin__status--inline" data-role="billing-status"></p>
             </section>
           </section>
           <div class="admin__floating-submit">
