@@ -156,6 +156,14 @@ body {
   z-index: 1;
 }
 
+.form2 .form2__header {
+  z-index: 5;
+}
+
+.form2 .form2__menu {
+  z-index: 6;
+}
+
 .form2__brand {
   align-self: flex-start;
   padding: 0.35rem 1.2rem;
@@ -212,6 +220,7 @@ body {
 .form2__menu {
   align-self: flex-end;
   position: relative;
+  z-index: 6;
 }
 
 .form2__menu-trigger {
@@ -251,7 +260,7 @@ body {
   transform: translateY(-4px);
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 4000;
+  z-index: 5000;
 }
 
 .form2__menu.is-open .form2__menu-panel {
