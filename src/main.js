@@ -22,6 +22,8 @@ const DEFAULT_ROUTER_DESCRIPTIONS = {
 const DEFAULT_FAVICON_PATH = '/vite.svg'
 
 const CONFIG_CACHE_KEY = 'oisoya_review_config_cache'
+const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
+const PROFILE_PREFILL_WELCOME_KEY = 'oisoya_review_prefill_welcome_shown'
 
 const readCachedConfig = () => {
   try {
@@ -39,6 +41,111 @@ const writeCachedConfig = (config) => {
   } catch {
     // noop
   }
+}
+
+const readSessionProfilePrefill = () => {
+  try {
+    const raw = window.sessionStorage.getItem(PROFILE_PREFILL_STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+const getProfilePayload = (payload) => {
+  if (!payload || typeof payload !== 'object') return null
+  if (payload.profile && typeof payload.profile === 'object') {
+    return payload.profile
+  }
+  return payload
+}
+
+const hasShownWelcomePopup = () => {
+  try {
+    return window.sessionStorage.getItem(PROFILE_PREFILL_WELCOME_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+const markWelcomePopupShown = () => {
+  try {
+    window.sessionStorage.setItem(PROFILE_PREFILL_WELCOME_KEY, '1')
+  } catch {
+    // noop
+  }
+}
+
+const getProfileDisplayName = (profile) => {
+  if (!profile || typeof profile !== 'object') return ''
+  const adminName = typeof profile.admin?.name === 'string' ? profile.admin.name.trim() : ''
+  if (adminName) return adminName
+  const fallbackName = typeof profile.name === 'string' ? profile.name.trim() : ''
+  return fallbackName
+}
+
+const createElementWithClass = (tag, className, text) => {
+  const element = document.createElement(tag)
+  if (className) {
+    element.className = className
+  }
+  if (text) {
+    element.textContent = text
+  }
+  return element
+}
+
+const showWelcomePopup = (name) => {
+  const overlay = document.createElement('div')
+  overlay.className = 'welcome-popup'
+
+  const backdrop = document.createElement('div')
+  backdrop.className = 'welcome-popup__backdrop'
+
+  const dialog = document.createElement('div')
+  dialog.className = 'welcome-popup__dialog'
+  dialog.setAttribute('role', 'dialog')
+  dialog.setAttribute('aria-live', 'polite')
+
+  const title = createElementWithClass('p', 'welcome-popup__title', 'こんにちは。')
+  const nameEl = createElementWithClass('p', 'welcome-popup__name', `${name} さん`)
+  const message = createElementWithClass('p', 'welcome-popup__message', 'ログインが完了しました。')
+  const button = createElementWithClass('button', 'welcome-popup__button', 'OK')
+  button.type = 'button'
+
+  const dismiss = () => {
+    overlay.classList.add('is-leaving')
+    setTimeout(() => {
+      overlay.remove()
+    }, 200)
+  }
+
+  button.addEventListener('click', dismiss)
+  backdrop.addEventListener('click', dismiss)
+
+  dialog.appendChild(title)
+  dialog.appendChild(nameEl)
+  dialog.appendChild(message)
+  dialog.appendChild(button)
+
+  overlay.appendChild(backdrop)
+  overlay.appendChild(dialog)
+
+  document.body.appendChild(overlay)
+}
+
+const maybeShowWelcomePopup = () => {
+  if (hasShownWelcomePopup()) {
+    return
+  }
+  const payload = readSessionProfilePrefill()
+  if (!payload) return
+  const profile = getProfilePayload(payload)
+  const name = getProfileDisplayName(profile)
+  if (!name) return
+  showWelcomePopup(name)
+  markWelcomePopupShown()
 }
 
 const inferFaviconType = (value) => {
@@ -293,6 +400,7 @@ const loadConfig = async () => {
 
 applyLabels()
 applyRouterDescriptions()
+maybeShowWelcomePopup()
 loadConfig()
 
 window.addEventListener('pageshow', (event) => {

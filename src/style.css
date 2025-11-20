@@ -357,3 +357,98 @@ body::before {
     width: min(720px, 100%);
   }
 }
+
+.welcome-popup {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.welcome-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(59, 40, 41, 0.45);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+.welcome-popup__dialog {
+  position: relative;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(244, 125, 150, 0.3);
+  text-align: center;
+  width: min(360px, calc(100% - 2rem));
+  z-index: 1;
+  pointer-events: auto;
+  animation: popupIn 0.2s ease;
+}
+
+.welcome-popup__title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+
+.welcome-popup__name {
+  margin: 0.4rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.welcome-popup__message {
+  margin: 0.8rem 0 1.5rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.welcome-popup__button {
+  border: none;
+  border-radius: 999px;
+  background: var(--brand-pink);
+  color: #fff;
+  padding: 0.7rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-base);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.welcome-popup__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(244, 125, 150, 0.3);
+}
+
+.welcome-popup__button:active {
+  transform: translateY(0);
+}
+
+.welcome-popup.is-leaving .welcome-popup__dialog {
+  animation: popupOut 0.2s ease forwards;
+}
+
+@keyframes popupIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popupOut {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}

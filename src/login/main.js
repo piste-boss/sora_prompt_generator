@@ -1,4 +1,5 @@
 const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
+const PROFILE_PREFILL_WELCOME_KEY = 'oisoya_review_prefill_welcome_shown'
 
 const app = document.querySelector('#login-app')
 if (!app) {
@@ -45,6 +46,7 @@ const storePrefillProfile = (profile, credentials) => {
         storedAt: new Date().toISOString(),
       }),
     )
+    window.sessionStorage.removeItem(PROFILE_PREFILL_WELCOME_KEY)
   } catch {
     // noop
   }
