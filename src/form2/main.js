@@ -303,12 +303,22 @@ const openUserMenu = () => {
   userMenu.classList.add('is-open')
 }
 
+const positionUserMenuPanel = () => {
+  if (!userMenuTrigger || !userMenuPanel) return
+  const rect = userMenuTrigger.getBoundingClientRect()
+  const top = rect.bottom + 8 + window.scrollY
+  const right = Math.max(12, window.innerWidth - rect.right + window.scrollX)
+  userMenuPanel.style.top = `${top}px`
+  userMenuPanel.style.right = `${right}px`
+}
+
 if (userMenu && userMenuTrigger && userMenuPanel) {
   userMenuTrigger.addEventListener('click', () => {
     const expanded = userMenuTrigger.getAttribute('aria-expanded') === 'true'
     if (expanded) {
       closeUserMenu()
     } else {
+      positionUserMenuPanel()
       openUserMenu()
     }
   })
@@ -322,6 +332,12 @@ if (userMenu && userMenuTrigger && userMenuPanel) {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeUserMenu()
+    }
+  })
+
+  window.addEventListener('resize', () => {
+    if (userMenu.classList.contains('is-open')) {
+      positionUserMenuPanel()
     }
   })
 }
