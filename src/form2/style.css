@@ -495,6 +495,100 @@ body {
   color: var(--accent-strong);
 }
 
+.welcome-popup {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.welcome-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 7, 22, 0.6);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
+.welcome-popup__dialog {
+  position: relative;
+  background: linear-gradient(120deg, var(--accent) 0%, var(--accent-strong) 100%);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 32px 60px rgba(12, 19, 46, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-align: center;
+  width: min(360px, calc(100% - 2rem));
+  z-index: 1;
+  pointer-events: auto;
+  animation: popupIn 0.2s ease;
+}
+
+.welcome-popup__title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.welcome-popup__name {
+  margin: 0.4rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.welcome-popup__message {
+  margin: 0.8rem 0 1.5rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.welcome-popup__button {
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 0.7rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.welcome-popup__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(2, 6, 18, 0.35);
+}
+
+.welcome-popup__button:active {
+  transform: translateY(0);
+}
+
+.welcome-popup.is-leaving .welcome-popup__dialog {
+  animation: popupOut 0.2s ease forwards;
+}
+
+@keyframes popupIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popupOut {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
 
 @media (max-width: 520px) {
   .form2 {

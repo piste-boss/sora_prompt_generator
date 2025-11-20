@@ -164,6 +164,52 @@ const maybeShowWelcomePopup = () => {
   markWelcomePopupShown()
 }
 
+const getCurrentUserEmail = () => {
+  const payload = readSessionProfilePrefill()
+  const raw = payload?.credentials?.email || payload?.profile?.email || ''
+  return typeof raw === 'string' ? raw.trim() : ''
+}
+
+let subscriptionCache = { email: '', active: false, timestamp: 0 }
+const SUBSCRIPTION_CACHE_TTL = 30 * 1000
+
+const ensureSubscriptionActive = async () => {
+  const email = getCurrentUserEmail()
+  if (!email) {
+    throw new Error('ログイン情報が見つかりません。再度ログインしてください。')
+  }
+
+  const now = Date.now()
+  if (subscriptionCache.email === email && now - subscriptionCache.timestamp < SUBSCRIPTION_CACHE_TTL) {
+    if (!subscriptionCache.active) {
+      throw new Error('有効なプランがありません。ユーザー設定からプランを登録してください。')
+    }
+    return true
+  }
+
+  const response = await fetch('/.netlify/functions/check-subscription', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const message = payload?.message || 'サブスクリプションの確認に失敗しました。'
+    throw new Error(message)
+  }
+
+  subscriptionCache = {
+    email,
+    active: Boolean(payload?.active),
+    timestamp: now,
+  }
+
+  if (!subscriptionCache.active) {
+    throw new Error('有効なプランがありません。ユーザー設定からプランを登録してください。')
+  }
+  return true
+}
+
 const inferFaviconType = (value) => {
   if (!value) return 'image/svg+xml'
   if (value.startsWith('data:image/')) {
@@ -335,10 +381,12 @@ const toggleButtons = (disabled) => {
 
 const handleDistribution = async (tierKey) => {
   const label = labels[tierKey] || DEFAULT_LABELS[tierKey] || tierKey
-  setStatus(`${label}へ最適なフォームを探しています…`)
+  setStatus('プランを確認しています…')
   toggleButtons(true)
 
   try {
+    await ensureSubscriptionActive()
+    setStatus(`${label}へ最適なフォームを探しています…`)
     const response = await fetch('/.netlify/functions/distribute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -251,6 +251,13 @@ const userProfileFields = {
   },
 }
 
+const billingButtons = {
+  basic: queryWithinApp('[data-role="subscribe-basic"]'),
+  pro: queryWithinApp('[data-role="subscribe-pro"]'),
+}
+const billingStatusEl = queryWithinApp('[data-role="billing-status"]')
+const proUnavailableMessage = 'PROプランは後日追加予定です。'
+
 const getStoredUserProfileValue = (key) =>
   typeof loadedConfig?.userProfile?.[key] === 'string' ? loadedConfig.userProfile[key] : ''
 
@@ -271,6 +278,21 @@ const setElementHidden = (element, hidden) => {
 const setToggleStatusText = (target, checked) => {
   if (!target) return
   target.textContent = checked ? 'ON' : 'OFF'
+}
+
+const setBillingStatus = (message, type = 'info') => {
+  if (!billingStatusEl) return
+  billingStatusEl.textContent = message || ''
+  billingStatusEl.dataset.type = type
+  billingStatusEl.toggleAttribute('hidden', !message)
+}
+
+const setBillingButtonsDisabled = (disabled) => {
+  Object.values(billingButtons).forEach((button) => {
+    if (button) {
+      button.disabled = disabled
+    }
+  })
 }
 
 const generateReferencePromptId = () => {
@@ -770,6 +792,41 @@ const ensureProfileRegistrationSatisfied = () => {
   if (isProfileRegistrationComplete()) {
     enforceProfileCompletion = false
     setStatus('ユーザー情報の入力が完了しました。', 'success')
+  }
+}
+
+const startCheckout = async (plan) => {
+  if (!isUserApp) return
+  if (!billingButtons[plan]) return
+  if (plan === 'pro') {
+    setBillingStatus(proUnavailableMessage, 'info')
+    return
+  }
+
+  const email = (userProfileFields.admin?.email?.value || '').trim()
+  setBillingStatus('チェックアウトを準備しています…', 'info')
+  setBillingButtonsDisabled(true)
+
+  try {
+    const response = await fetch('/.netlify/functions/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan, email }),
+    })
+
+    const payload = await response.json().catch(() => ({}))
+    if (!response.ok) {
+      const message = payload?.message || 'チェックアウトの作成に失敗しました。'
+      throw new Error(message)
+    }
+    if (!payload?.url) {
+      throw new Error('チェックアウトURLの取得に失敗しました。')
+    }
+    window.location.href = payload.url
+  } catch (error) {
+    console.error(error)
+    setBillingStatus(error.message || 'チェックアウトの開始に失敗しました。', 'error')
+    setBillingButtonsDisabled(false)
   }
 }
 
@@ -1638,6 +1695,14 @@ if (profileFetchButton) {
     fetchStoredUserProfile()
   })
 }
+
+if (billingStatusEl) {
+  billingStatusEl.setAttribute('hidden', '')
+}
+Object.entries(billingButtons).forEach(([plan, button]) => {
+  if (!button) return
+  button.addEventListener('click', () => startCheckout(plan))
+})
 
 const profileRegistrationInputs = [
   userProfileFields.admin?.name,

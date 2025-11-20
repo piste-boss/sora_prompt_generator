@@ -1,5 +1,7 @@
 const CONFIG_CACHE_KEY = 'oisoya_review_config_cache'
 const LAST_SUBMISSION_STORAGE_KEY = 'oisoya_review_last_submission'
+const PROFILE_PREFILL_STORAGE_KEY = 'oisoya_review_prefill_profile'
+const PROFILE_PREFILL_WELCOME_KEY = 'oisoya_review_prefill_welcome_shown'
 
 const DEFAULT_FORMS = {
   form1: {
@@ -93,6 +95,125 @@ const writeCachedConfig = (config) => {
   } catch {
     // noop
   }
+}
+
+const readSessionProfilePrefill = () => {
+  try {
+    const raw = window.sessionStorage.getItem(PROFILE_PREFILL_STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+const getProfilePayload = (payload) => {
+  if (!payload || typeof payload !== 'object') return null
+  if (payload.profile && typeof payload.profile === 'object') {
+    return payload.profile
+  }
+  return payload
+}
+
+const hasShownWelcomePopup = () => {
+  try {
+    return window.sessionStorage.getItem(PROFILE_PREFILL_WELCOME_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+const markWelcomePopupShown = () => {
+  try {
+    window.sessionStorage.setItem(PROFILE_PREFILL_WELCOME_KEY, '1')
+  } catch {
+    // noop
+  }
+}
+
+const getWelcomeDisplayName = (payload) => {
+  if (!payload || typeof payload !== 'object') return ''
+  if (payload.credentials && typeof payload.credentials.displayName === 'string') {
+    const trimmed = payload.credentials.displayName.trim()
+    if (trimmed) return trimmed
+  }
+  const profile = getProfilePayload(payload)
+  const candidates = [
+    profile?.profileAdminName,
+    profile?.adminName,
+    profile?.admin?.name,
+    profile?.name,
+    profile?.storeName,
+    profile?.storeKana,
+  ]
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim()
+    }
+  }
+  const fallbackEmail =
+    typeof payload.credentials?.email === 'string' ? payload.credentials.email.trim() : ''
+  return fallbackEmail
+}
+
+const createElementWithClass = (tag, className, text) => {
+  const element = document.createElement(tag)
+  if (className) {
+    element.className = className
+  }
+  if (text) {
+    element.textContent = text
+  }
+  return element
+}
+
+const showWelcomePopup = (name) => {
+  const overlay = document.createElement('div')
+  overlay.className = 'welcome-popup'
+
+  const backdrop = document.createElement('div')
+  backdrop.className = 'welcome-popup__backdrop'
+
+  const dialog = document.createElement('div')
+  dialog.className = 'welcome-popup__dialog'
+  dialog.setAttribute('role', 'dialog')
+  dialog.setAttribute('aria-live', 'polite')
+
+  const title = createElementWithClass('p', 'welcome-popup__title', 'こんにちは。')
+  const nameEl = createElementWithClass('p', 'welcome-popup__name', `${name} さん`)
+  const message = createElementWithClass('p', 'welcome-popup__message', 'ログインが完了しました。')
+  const button = createElementWithClass('button', 'welcome-popup__button', 'OK')
+  button.type = 'button'
+
+  const dismiss = () => {
+    overlay.classList.add('is-leaving')
+    setTimeout(() => {
+      overlay.remove()
+    }, 200)
+  }
+
+  button.addEventListener('click', dismiss)
+  backdrop.addEventListener('click', dismiss)
+
+  dialog.appendChild(title)
+  dialog.appendChild(nameEl)
+  dialog.appendChild(message)
+  dialog.appendChild(button)
+
+  overlay.appendChild(backdrop)
+  overlay.appendChild(dialog)
+
+  document.body.appendChild(overlay)
+}
+
+const maybeShowWelcomePopup = () => {
+  if (hasShownWelcomePopup()) return
+  const payload = readSessionProfilePrefill()
+  if (!payload) return
+  const name = getWelcomeDisplayName(payload)
+  if (!name) return
+  showWelcomePopup(name)
+  markWelcomePopupShown()
 }
 
 const generateResponseId = () => {
@@ -730,4 +851,5 @@ submitButton?.addEventListener('click', async () => {
   }
 })
 
+maybeShowWelcomePopup()
 initializeForm()
