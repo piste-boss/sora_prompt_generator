@@ -280,37 +280,97 @@ const generateReferencePromptId = () => {
   return `ref-${Date.now()}-${Math.floor(Math.random() * 10000)}`
 }
 
-const buildReferencePromptEntries = (entries, legacy = '') => {
-  const normalizedEntries = Array.isArray(entries) ? entries : []
-  const list = normalizedEntries
-    .map((entry, index) => {
-      const body = typeof entry?.body === 'string' ? entry.body.trim() : ''
-      const title = typeof entry?.title === 'string' ? entry.title.trim() : ''
-      if (!body) return null
-      const id =
-        typeof entry?.id === 'string' && entry.id.trim()
-          ? entry.id.trim()
-          : `ref-${Date.now()}-${index}`
-      return {
-        id,
-        title: title || `参考プロンプト${index + 1}`,
-        body,
-      }
-    })
-    .filter(Boolean)
+const normalizeReferencePromptsSource = (source) => {
+  if (!source) return []
+  if (Array.isArray(source)) {
+    return source
+  }
+  if (typeof source === 'string') {
+    const trimmed = source.trim()
+    if (!trimmed) return []
+    try {
+      const parsed = JSON.parse(trimmed)
+      if (Array.isArray(parsed)) return parsed
+      if (parsed && typeof parsed === 'object') return [parsed]
+    } catch {
+      return [{ body: trimmed }]
+    }
+    return [{ body: trimmed }]
+  }
+  if (typeof source === 'object') {
+    return [source]
+  }
+  return []
+}
 
-  if (list.length === 0) {
-    const legacyText = typeof legacy === 'string' ? legacy.trim() : ''
-    if (legacyText) {
-      list.push({
-        id: generateReferencePromptId(),
-        title: '参考プロンプト',
-        body: legacyText,
+const collectReferencePromptsFromProfileColumns = (profile) => {
+  if (!profile || typeof profile !== 'object') return []
+  const entries = []
+  const pattern = /^referencePrompt(\d+)$/
+  Object.entries(profile).forEach(([key, value]) => {
+    const match = key.match(pattern)
+    if (!match) return
+    const body = typeof value === 'string' ? value.trim() : ''
+    if (!body) return
+    entries.push({ index: Number(match[1]), body })
+  })
+  entries.sort((a, b) => a.index - b.index)
+  return entries.map((item, index) => ({
+    id: `ref-column-${index + 1}`,
+    title: `参考プロンプト${index + 1}`,
+    body: item.body,
+  }))
+}
+
+const buildReferencePromptEntries = (entries, legacy = '', options = {}) => {
+  const mapToList = (candidates) =>
+    candidates
+      .map((entry, index) => {
+        const body = typeof entry?.body === 'string' ? entry.body.trim() : ''
+        const title = typeof entry?.title === 'string' ? entry.title.trim() : ''
+        if (!body) return null
+        const id =
+          typeof entry?.id === 'string' && entry.id.trim()
+            ? entry.id.trim()
+            : `ref-${Date.now()}-${index}`
+        return {
+          id,
+          title: title || `参考プロンプト${index + 1}`,
+          body,
+        }
       })
+      .filter(Boolean)
+
+  const potentialSources = [
+    entries,
+    options.referencePromptsJson,
+    options.profile?.referencePromptsJson,
+  ]
+
+  for (const source of potentialSources) {
+    const list = mapToList(normalizeReferencePromptsSource(source))
+    if (list.length > 0) {
+      return list.slice(0, MAX_REFERENCE_PROMPTS)
     }
   }
 
-  return list.slice(0, MAX_REFERENCE_PROMPTS)
+  const columnEntries = collectReferencePromptsFromProfileColumns(options.profile)
+  if (columnEntries.length > 0) {
+    return columnEntries.slice(0, MAX_REFERENCE_PROMPTS)
+  }
+
+  const legacyText = typeof legacy === 'string' ? legacy.trim() : ''
+  if (legacyText) {
+    return [
+      {
+        id: generateReferencePromptId(),
+        title: '参考プロンプト',
+        body: legacyText,
+      },
+    ]
+  }
+
+  return []
 }
 
 const renderReferencePromptList = () => {
@@ -620,7 +680,10 @@ const setUserProfileValues = (profile = {}, options = {}) => {
   assign(userProfileFields.strengths, profile.strengths)
 
   setReferencePromptState(
-    buildReferencePromptEntries(profile.referencePrompts, profile.referencePrompt),
+    buildReferencePromptEntries(profile.referencePrompts, profile.referencePrompt, {
+      referencePromptsJson: profile.referencePromptsJson,
+      profile,
+    }),
   )
 
   const keywords = Array.isArray(profile.keywords) ? profile.keywords : []
