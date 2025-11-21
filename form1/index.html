@@ -68,9 +68,9 @@
             </button>
             <div class="form2__menu-panel" id="user-menu-panel" data-role="user-menu-panel" aria-hidden="true">
               <ul class="form2__menu-list">
-                <li><a href="/user/?tab=admin-settings">ユーザー情報</a></li>
-                <li><a href="/user/?tab=reference-prompt">参考プロンプト</a></li>
-                <li><a href="/user/?tab=billing">お支払い情報</a></li>
+                <li><a href="/user/?tab=admin-settings" data-role="user-menu-link" data-user-tab-target="admin-settings">ユーザー情報</a></li>
+                <li><a href="/user/?tab=reference-prompt" data-role="user-menu-link" data-user-tab-target="reference-prompt">参考プロンプト</a></li>
+                <li><a href="/user/?tab=billing" data-role="user-menu-link" data-user-tab-target="billing">お支払い情報</a></li>
               </ul>
             </div>
           </div>
@@ -81,6 +81,28 @@
         </section>
         <p class="form2__status" data-role="status" hidden></p>
       </main>
+    </div>
+    <div class="user-overlay" data-role="user-overlay" hidden>
+      <div class="user-overlay__backdrop" data-role="user-overlay-close"></div>
+      <div class="user-overlay__dialog">
+        <div class="user-overlay__header">
+          <p class="user-overlay__title">ユーザー設定</p>
+          <button type="button" class="user-overlay__close" data-role="user-overlay-close" aria-label="閉じる">×</button>
+        </div>
+        <div class="user-overlay__body">
+          <div class="user-overlay__spinner" data-role="user-overlay-spinner">
+            <span class="user-overlay__dot"></span>
+            <span class="user-overlay__dot"></span>
+            <span class="user-overlay__dot"></span>
+          </div>
+          <iframe
+            title="ユーザー設定"
+            class="user-overlay__frame"
+            data-role="user-overlay-frame"
+            src="/user/"
+          ></iframe>
+        </div>
+      </div>
     </div>
     <div class="app-loader" data-role="app-loader" aria-live="polite" aria-busy="true">
       <div class="app-loader__inner">
