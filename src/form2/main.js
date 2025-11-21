@@ -308,9 +308,11 @@ const positionUserMenuPanel = () => {
   const rect = userMenuTrigger.getBoundingClientRect()
   const top = rect.bottom + 8
   const right = Math.max(12, window.innerWidth - rect.right)
+  userMenuPanel.style.position = 'fixed'
   userMenuPanel.style.top = `${top}px`
   userMenuPanel.style.right = `${right}px`
   userMenuPanel.style.left = 'auto'
+  userMenuPanel.style.maxWidth = 'min(280px, 90vw)'
 }
 
 if (userMenu && userMenuTrigger && userMenuPanel) {

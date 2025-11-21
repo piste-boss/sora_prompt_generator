@@ -214,7 +214,8 @@ body {
   position: fixed;
   top: clamp(1rem, 4vw, 1.75rem);
   right: clamp(1rem, 4vw, 1.75rem);
-  z-index: 20000;
+  z-index: 99999;
+  pointer-events: auto;
 }
 
 .form2__menu-trigger {
@@ -251,7 +252,9 @@ body {
   transform: translateY(-4px);
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 21000;
+  z-index: 100000;
+  max-width: min(280px, 90vw);
+  transform: translateZ(0);
 }
 
 .form2__menu.is-open .form2__menu-panel {
