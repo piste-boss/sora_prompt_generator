@@ -281,6 +281,8 @@ const applyBrandingLogo = (branding = {}) => {
 const userMenu = app.querySelector('[data-role="user-menu"]')
 const userMenuTrigger = app.querySelector('[data-role="user-menu-trigger"]')
 const userMenuPanel = app.querySelector('[data-role="user-menu-panel"]')
+const userMenuLinks = document.querySelectorAll('[data-role="user-menu-link"]')
+const userMenuLogoutLinks = document.querySelectorAll('[data-role="user-menu-logout"]')
 
 const closeUserMenu = () => {
   if (!userMenuTrigger || !userMenuPanel || !userMenu) return
@@ -309,6 +311,27 @@ const positionUserMenuPanel = () => {
   userMenuPanel.style.left = 'auto'
   userMenuPanel.style.maxWidth = 'min(280px, 90vw)'
   userMenuPanel.style.zIndex = '100000'
+}
+
+const performLogout = () => {
+  try {
+    window.sessionStorage.removeItem(PROFILE_PREFILL_STORAGE_KEY)
+    window.sessionStorage.removeItem(PROFILE_PREFILL_WELCOME_KEY)
+    window.localStorage.removeItem(DEV_MODE_STORAGE_KEY)
+  } catch {
+    // noop
+  }
+  closeUserMenu()
+  window.location.assign('/login/')
+}
+
+if (userMenuLogoutLinks && userMenuLogoutLinks.length > 0) {
+  userMenuLogoutLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      performLogout()
+    })
+  })
 }
 
 if (userMenu && userMenuTrigger && userMenuPanel) {
