@@ -278,6 +278,70 @@ const applyBrandingLogo = (branding = {}) => {
   }
 }
 
+const userSettingsLinks = document.querySelectorAll('[data-role="user-settings-link"]')
+userSettingsLinks.forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault()
+  })
+})
+
+const userMenu = app.querySelector('[data-role="user-menu"]')
+const userMenuTrigger = app.querySelector('[data-role="user-menu-trigger"]')
+const userMenuPanel = app.querySelector('[data-role="user-menu-panel"]')
+
+const closeUserMenu = () => {
+  if (!userMenuTrigger || !userMenuPanel || !userMenu) return
+  userMenuTrigger.setAttribute('aria-expanded', 'false')
+  userMenuPanel.setAttribute('aria-hidden', 'true')
+  userMenu.classList.remove('is-open')
+}
+
+const openUserMenu = () => {
+  if (!userMenuTrigger || !userMenuPanel || !userMenu) return
+  userMenuTrigger.setAttribute('aria-expanded', 'true')
+  userMenuPanel.setAttribute('aria-hidden', 'false')
+  userMenu.classList.add('is-open')
+}
+
+const positionUserMenuPanel = () => {
+  if (!userMenuTrigger || !userMenuPanel) return
+  const rect = userMenuTrigger.getBoundingClientRect()
+  const top = rect.bottom + 8 + window.scrollY
+  const right = Math.max(12, window.innerWidth - rect.right + window.scrollX)
+  userMenuPanel.style.top = `${top}px`
+  userMenuPanel.style.right = `${right}px`
+}
+
+if (userMenu && userMenuTrigger && userMenuPanel) {
+  userMenuTrigger.addEventListener('click', () => {
+    const expanded = userMenuTrigger.getAttribute('aria-expanded') === 'true'
+    if (expanded) {
+      closeUserMenu()
+    } else {
+      positionUserMenuPanel()
+      openUserMenu()
+    }
+  })
+
+  document.addEventListener('click', (event) => {
+    if (!userMenu.contains(event.target)) {
+      closeUserMenu()
+    }
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeUserMenu()
+    }
+  })
+
+  window.addEventListener('resize', () => {
+    if (userMenu.classList.contains('is-open')) {
+      positionUserMenuPanel()
+    }
+  })
+}
+
 const clearQuestionStatus = (statusNode) => {
   if (!statusNode) return
   statusNode.textContent = ''
