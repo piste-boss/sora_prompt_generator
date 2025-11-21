@@ -306,10 +306,11 @@ const openUserMenu = () => {
 const positionUserMenuPanel = () => {
   if (!userMenuTrigger || !userMenuPanel) return
   const rect = userMenuTrigger.getBoundingClientRect()
-  const top = rect.bottom + 8 + window.scrollY
-  const right = Math.max(12, window.innerWidth - rect.right + window.scrollX)
+  const top = rect.bottom + 8
+  const right = Math.max(12, window.innerWidth - rect.right)
   userMenuPanel.style.top = `${top}px`
   userMenuPanel.style.right = `${right}px`
+  userMenuPanel.style.left = 'auto'
 }
 
 if (userMenu && userMenuTrigger && userMenuPanel) {
