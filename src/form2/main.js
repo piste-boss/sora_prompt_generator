@@ -313,10 +313,15 @@ const positionUserMenuPanel = () => {
   userMenuPanel.style.right = `${right}px`
   userMenuPanel.style.left = 'auto'
   userMenuPanel.style.maxWidth = 'min(280px, 90vw)'
+  userMenuPanel.style.zIndex = '100000'
 }
 
 if (userMenu && userMenuTrigger && userMenuPanel) {
   userMenuTrigger.addEventListener('click', () => {
+    if (!userMenuPanel.dataset.attachedToBody) {
+      document.body.appendChild(userMenuPanel)
+      userMenuPanel.dataset.attachedToBody = '1'
+    }
     const expanded = userMenuTrigger.getAttribute('aria-expanded') === 'true'
     if (expanded) {
       closeUserMenu()
