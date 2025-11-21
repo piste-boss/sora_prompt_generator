@@ -154,6 +154,7 @@ const isAdminApp = appRole === 'admin'
 const isUserApp = appRole === 'user'
 const searchParams = new URLSearchParams(window.location.search || '')
 const shouldForceProfileRegistration = isUserApp && searchParams.get('register') === '1'
+const standaloneTab = isUserApp ? (searchParams.get('standalone') || '').trim() : ''
 let enforceProfileCompletion = shouldForceProfileRegistration
 
 const queryWithinApp = (selector) => app.querySelector(selector) || document.querySelector(selector)
@@ -1670,12 +1671,36 @@ const activateTab = (target) => {
 const availableTabTargets = new Set(tabButtons.map((button) => button.dataset.tabTarget))
 const requestedTab = (searchParams.get('tab') || '').trim()
 let initialTab = 'admin-settings'
-if (requestedTab && availableTabTargets.has(requestedTab)) {
-  initialTab = requestedTab
+const targetTab = standaloneTab && availableTabTargets.has(standaloneTab) ? standaloneTab : requestedTab
+if (targetTab && availableTabTargets.has(targetTab)) {
+  initialTab = targetTab
 }
-if (enforceProfileCompletion && initialTab !== 'admin-settings' && !isProfileRegistrationComplete()) {
+if (!standaloneTab && enforceProfileCompletion && initialTab !== 'admin-settings' && !isProfileRegistrationComplete()) {
   initialTab = 'admin-settings'
 }
+const applyStandaloneView = () => {
+  if (!standaloneTab || !availableTabTargets.has(standaloneTab)) return
+  enforceProfileCompletion = false
+  tabButtons.forEach((button) => {
+    const isTarget = button.dataset.tabTarget === standaloneTab
+    if (!isTarget) {
+      button.setAttribute('hidden', '')
+    } else {
+      button.classList.add('is-active')
+    }
+  })
+  tabPanels.forEach((panel) => {
+    const isTarget = panel.dataset.tabPanel === standaloneTab
+    panel.classList.toggle('is-active', isTarget)
+    if (!isTarget) {
+      panel.setAttribute('hidden', '')
+    }
+  })
+  if (tabMenuContainer) {
+    tabMenuContainer.setAttribute('hidden', '')
+  }
+}
+applyStandaloneView()
 activateTab(initialTab)
 
 tabButtons.forEach((button) => {
