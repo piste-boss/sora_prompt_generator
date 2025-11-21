@@ -294,6 +294,7 @@ const closeUserMenu = () => {
   userMenuTrigger.setAttribute('aria-expanded', 'false')
   userMenuPanel.setAttribute('aria-hidden', 'true')
   userMenu.classList.remove('is-open')
+  userMenuPanel.classList.remove('is-open')
 }
 
 const openUserMenu = () => {
@@ -301,6 +302,7 @@ const openUserMenu = () => {
   userMenuTrigger.setAttribute('aria-expanded', 'true')
   userMenuPanel.setAttribute('aria-hidden', 'false')
   userMenu.classList.add('is-open')
+  userMenuPanel.classList.add('is-open')
 }
 
 const positionUserMenuPanel = () => {
