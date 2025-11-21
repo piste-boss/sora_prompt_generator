@@ -11,6 +11,8 @@ export default defineConfig({
         form1: resolve(__dirname, 'form1/index.html'),
         login: resolve(__dirname, 'login/index.html'),
         user: resolve(__dirname, 'user/index.html'),
+        reference: resolve(__dirname, 'reference/index.html'),
+        billing: resolve(__dirname, 'billing/index.html'),
       },
     },
   },
