@@ -1667,6 +1667,17 @@ const activateTab = (target) => {
   hidePromptPopover()
 }
 
+const availableTabTargets = new Set(tabButtons.map((button) => button.dataset.tabTarget))
+const requestedTab = (searchParams.get('tab') || '').trim()
+let initialTab = 'admin-settings'
+if (requestedTab && availableTabTargets.has(requestedTab)) {
+  initialTab = requestedTab
+}
+if (enforceProfileCompletion && initialTab !== 'admin-settings' && !isProfileRegistrationComplete()) {
+  initialTab = 'admin-settings'
+}
+activateTab(initialTab)
+
 tabButtons.forEach((button) => {
   button.addEventListener('click', () => {
     const target = button.dataset.tabTarget
