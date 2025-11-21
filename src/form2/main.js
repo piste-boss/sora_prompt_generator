@@ -281,11 +281,6 @@ const applyBrandingLogo = (branding = {}) => {
 const userMenu = app.querySelector('[data-role="user-menu"]')
 const userMenuTrigger = app.querySelector('[data-role="user-menu-trigger"]')
 const userMenuPanel = app.querySelector('[data-role="user-menu-panel"]')
-const userMenuLinks = document.querySelectorAll('[data-role="user-menu-link"]')
-const userOverlay = document.querySelector('[data-role="user-overlay"]')
-const userOverlayFrame = document.querySelector('[data-role="user-overlay-frame"]')
-const userOverlaySpinner = document.querySelector('[data-role="user-overlay-spinner"]')
-const userOverlayCloseButtons = document.querySelectorAll('[data-role="user-overlay-close"]')
 
 const closeUserMenu = () => {
   if (!userMenuTrigger || !userMenuPanel || !userMenu) return
@@ -314,59 +309,6 @@ const positionUserMenuPanel = () => {
   userMenuPanel.style.left = 'auto'
   userMenuPanel.style.maxWidth = 'min(280px, 90vw)'
   userMenuPanel.style.zIndex = '100000'
-}
-
-const openUserOverlay = (tab) => {
-  if (!userOverlay || !userOverlayFrame) return
-  const url = tab ? `/user/?tab=${encodeURIComponent(tab)}` : '/user/'
-  const targetUrl = new URL(url, window.location.origin).href
-  if (userOverlayFrame.src !== targetUrl) {
-    userOverlaySpinner?.classList.remove('is-hidden')
-    userOverlayFrame.src = targetUrl
-  }
-  userOverlay.removeAttribute('hidden')
-  userOverlay.classList.add('is-open')
-}
-
-const closeUserOverlay = () => {
-  if (!userOverlay) return
-  userOverlay.classList.remove('is-open')
-  setTimeout(() => {
-    userOverlay.setAttribute('hidden', '')
-  }, 180)
-}
-
-if (userOverlayFrame && userOverlaySpinner) {
-  userOverlayFrame.addEventListener('load', () => {
-    userOverlaySpinner.classList.add('is-hidden')
-  })
-}
-
-if (userOverlayCloseButtons && userOverlayCloseButtons.length > 0) {
-  userOverlayCloseButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      closeUserOverlay()
-    })
-  })
-}
-
-if (userOverlay) {
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && userOverlay.classList.contains('is-open')) {
-      closeUserOverlay()
-    }
-  })
-}
-
-if (userMenuLinks && userMenuLinks.length > 0) {
-  userMenuLinks.forEach((link) => {
-    link.addEventListener('click', (event) => {
-      const tab = link.dataset.userTabTarget || ''
-      event.preventDefault()
-      closeUserMenu()
-      openUserOverlay(tab)
-    })
-  })
 }
 
 if (userMenu && userMenuTrigger && userMenuPanel) {
