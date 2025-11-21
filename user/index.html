@@ -138,6 +138,16 @@
                 </button>
                 <p class="admin__hint">登録済みのメールアドレスとパスワードを入力してから押してください。</p>
               </div>
+              <div class="admin__fields admin__fields--single">
+                <label class="admin__field">
+                  <span class="admin__field-label">参考プロンプトURL</span>
+                  <input type="url" name="referencePageUrl" placeholder="https://sora-prompt-generator.netlify.app/reference/" autocomplete="off" />
+                </label>
+                <label class="admin__field">
+                  <span class="admin__field-label">お支払い情報URL</span>
+                  <input type="url" name="billingPageUrl" placeholder="https://sora-prompt-generator.netlify.app/billing/" autocomplete="off" />
+                </label>
+              </div>
             </section>
           </section>
           <section class="admin__panel" data-tab-panel="reference-prompt">
