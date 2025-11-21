@@ -222,7 +222,7 @@ body {
   border: none;
   background: transparent;
   color: #fff;
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -260,7 +260,7 @@ body {
 
 .form2__menu-title {
   margin: 0 0 0.4rem;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: #cdd7f7;
   font-weight: 700;
 }
@@ -274,6 +274,7 @@ body {
   gap: 0.35rem;
   color: #eaf0ff;
   font-weight: 600;
+  font-size: 1rem;
 }
 
 .form2__brand [hidden] {
