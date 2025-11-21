@@ -42,6 +42,30 @@
         }
       })()
     </script>
+    <script>
+      ;(() => {
+        const params = new URLSearchParams(window.location.search || '')
+        const standalone = (params.get('standalone') || '').trim()
+        if (standalone) {
+          document.documentElement.dataset.standalone = standalone
+        }
+      })()
+    </script>
+    <style>
+      [data-standalone] [data-role='tab-menu-container'] {
+        display: none !important;
+      }
+      [data-standalone] .admin__tab {
+        display: none !important;
+      }
+      [data-standalone] .admin__panel {
+        display: none !important;
+      }
+      [data-standalone='reference-prompt'] [data-tab-panel='reference-prompt'],
+      [data-standalone='billing'] [data-tab-panel='billing'] {
+        display: block !important;
+      }
+    </style>
     <title>ユーザー設定ページ</title>
   </head>
   <body>
