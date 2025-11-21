@@ -212,20 +212,20 @@ body {
 .form2__menu {
   align-self: flex-end;
   position: fixed;
-  top: clamp(1rem, 4vw, 1.75rem);
-  right: clamp(1rem, 4vw, 1.75rem);
+  top: clamp(1.2rem, 5vw, 2rem);
+  right: clamp(1.2rem, 5vw, 2rem);
   z-index: 99999;
   pointer-events: auto;
 }
 
 .form2__menu-trigger {
-  width: 72px;
-  height: 72px;
-  border-radius: 22px;
+  width: 88px;
+  height: 88px;
+  border-radius: 26px;
   border: none;
   background: transparent;
   color: #fff;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.2s ease;
