@@ -211,8 +211,10 @@ body {
 
 .form2__menu {
   align-self: flex-end;
-  position: relative;
-  z-index: 12000;
+  position: fixed;
+  top: clamp(1rem, 4vw, 1.75rem);
+  right: clamp(1rem, 4vw, 1.75rem);
+  z-index: 20000;
 }
 
 .form2__menu-trigger {
@@ -249,7 +251,7 @@ body {
   transform: translateY(-4px);
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 13000;
+  z-index: 21000;
 }
 
 .form2__menu.is-open .form2__menu-panel {
