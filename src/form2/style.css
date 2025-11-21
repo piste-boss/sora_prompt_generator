@@ -216,23 +216,20 @@ body {
 }
 
 .form2__menu-trigger {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.08);
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  border: none;
+  background: transparent;
   color: #fff;
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   font-weight: 800;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .form2__menu-trigger:hover {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.32);
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(2, 5, 19, 0.35);
 }
 
 .form2__menu-trigger:active {
